@@ -920,13 +920,23 @@ function initApp(lat,lng){
     const seq=++appLocationSeq; currentLat=lat; currentLng=lng;
     const isManual=document.getElementById('pos-mode-select').value==='manual';
     document.getElementById('gps-txt').textContent=isManual?`الموقع اليدوي: ${lat.toFixed(5)}، ${lng.toFixed(5)}`:`GPS نشط: ${lat.toFixed(5)}، ${lng.toFixed(5)}`;
+    // Mise à jour immédiate de la section "نقطة الانطلاق" (même instant que la barre du haut) — sans attendre la recherche d'adresse
+    masariOnGps(lat,lng,'');
     reverseGeocode(lat,lng).then(geo=>{
         if(seq!==appLocationSeq)return;
         renderEmergencyNumbers(geo.countryCode||'');
         const addr=[geo.city,geo.state,geo.country].filter(Boolean).join('، ');
-        masariOnGps(lat,lng,addr);
+        masariUpdateAddr(addr);
         if(isManual){const parts=[geo.city,geo.state,geo.country].filter(Boolean);const info=document.getElementById('manual-location-info');if(parts.length>0){info.textContent='📍 '+[...new Set(parts)].join('، ');info.style.display='block';}else info.style.display='none';}
     });
+}
+
+function masariUpdateAddr(addr){
+    masariCurrentAddr=addr||'';
+    if(!addr)return;
+    var addrDiv=document.getElementById('masari-gps-addr');
+    addrDiv.textContent='📍 '+addr;
+    addrDiv.style.display='block';
 }
 
 function isGoodGps(p){if(!p||!p.coords)return false;const acc=p.coords.accuracy;if(!Number.isFinite(acc)||acc>GPS_ACC)return false;const age=Number.isFinite(p.timestamp)?Math.max(0,Date.now()-p.timestamp):Infinity;return age<=GPS_AGE;}
@@ -1223,16 +1233,16 @@ async function masariCalcRoute(){
 
 // ══ VOCAL SERVICES ══
 var MASARI_SERVICES={
-    mosque:   {keys:['مسجد','صلاة','جامع','صلاتي'],url:'https://salati.kieda.online',label:'🕌 صلاتي'},
-    pharmacy: {keys:['صيدلية','دواء','صيدلانية','صيدلياتي'],url:'https://saydaliati.kieda.online',label:'💊 صيدليتي'},
-    atm:      {keys:['صراف','صرّاف','فلوس','دابي','ماكينة','أموال'],url:'https://dabi.kieda.online',label:'🏧 دابي'},
-    fuel:     {keys:['وقود','بنزين','محطة','محطتي','كارورة'],url:'https://mahattati.kieda.online',label:'⛽ محطتي'},
-    vet:      {keys:['بيطري','حيوان','كلب','قطة','بيطرية','بيطار'],url:'https://albaytari.kieda.online',label:'🐾 البيطري'},
-    dentist:  {keys:['أسنان','سن','طبيب أسنان','دنتيست','ضرس'],url:'https://dentiste.kieda.online',label:'🦷 طبيب الأسنان'},
-    bank:     {keys:['بنك','مصرف','مصرفي','بنكي','حساب'],url:'https://masrifi.kieda.online',label:'💳 مصرفي'},
-    optician: {keys:['نظارات','عيون','بصريات','عيني','نظارة'],url:'https://nadharatioptic.kieda.online',label:'👁️ نظاراتي'},
-    doctor:   {keys:['طبيب','دكتور','مريض','عيادة','طبيبي','صحة'],url:'https://tabibialam.kieda.online',label:'🏥 طبيبي'},
-    translator:{keys:['مترجم','ترجمة','لغة','ترجم','مترجمي'],url:'https://moutarjem.kieda.online',label:'🗣️ مترجمي'}
+    mosque:   {keys:['مسجد','صلاة','جامع','صلاتي','mosque','masjid','jami','salat','salati','prayer','priere','prière'],url:'https://salati.kieda.online',label:'🕌 صلاتي'},
+    pharmacy: {keys:['صيدلية','دواء','صيدلانية','صيدلياتي','pharmacy','pharmacie','medicament','médicament','daoua','dawa','saydaliya','saydaliati','saydaliyati','medicine','médecine'],url:'https://saydaliati.kieda.online',label:'💊 صيدليتي'},
+    atm:      {keys:['صراف','صرّاف','فلوس','دابي','ماكينة','أموال','atm','distributeur','argent','cash','dabi','sarraf','guichet','retrait'],url:'https://dabi.kieda.online',label:'🏧 دابي'},
+    fuel:     {keys:['وقود','بنزين','محطة','محطتي','كارورة','essence','gas','gasoline','fuel','station','carburant','mahattati'],url:'https://mahattati.kieda.online',label:'⛽ محطتي'},
+    vet:      {keys:['بيطري','حيوان','كلب','قطة','بيطرية','بيطار','vet','veterinaire','vétérinaire','animal','chien','chat','baytari'],url:'https://albaytari.kieda.online',label:'🐾 البيطري'},
+    dentist:  {keys:['أسنان','سن','طبيب أسنان','دنتيست','ضرس','dentist','dentiste','teeth','dent','dents','asnan'],url:'https://dentiste.kieda.online',label:'🦷 طبيب الأسنان'},
+    bank:     {keys:['بنك','مصرف','مصرفي','بنكي','حساب','bank','banque','compte','masrifi'],url:'https://masrifi.kieda.online',label:'💳 مصرفي'},
+    optician: {keys:['نظارات','عيون','بصريات','عيني','نظارة','optician','opticien','lunettes','glasses','nadharat'],url:'https://nadharatioptic.kieda.online',label:'👁️ نظاراتي'},
+    doctor:   {keys:['طبيب','دكتور','مريض','عيادة','طبيبي','صحة','doctor','docteur','medecin','médecin','tabib','health','sante','santé'],url:'https://tabibialam.kieda.online',label:'🏥 طبيبي'},
+    translator:{keys:['مترجم','ترجمة','لغة','ترجم','مترجمي','translator','traducteur','traduction','translate','moutarjem'],url:'https://moutarjem.kieda.online',label:'🗣️ مترجمي'}
 };
 
 function masariOpenService(key){
