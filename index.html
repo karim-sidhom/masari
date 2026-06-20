@@ -183,6 +183,18 @@
         }
         .filter-btn:hover { border-color: rgba(255,215,0,0.4); color: var(--gold-bright); }
 
+        .masari-service-btn {
+            font-size: 11px; color: var(--text-dim); padding: 7px 12px;
+            border: 1px solid rgba(255,215,0,0.2); border-radius: 20px;
+            background: rgba(255,215,0,0.04); font-family: 'Tajawal', sans-serif;
+            cursor: pointer; transition: all .2s; -webkit-tap-highlight-color: transparent;
+        }
+        .masari-service-btn:hover, .masari-service-btn:active {
+            border-color: rgba(255,215,0,0.65); color: var(--gold-bright);
+            background: rgba(255,215,0,0.14); box-shadow: 0 0 12px rgba(255,215,0,0.25);
+            transform: translateY(-1px);
+        }
+
         /* ══ INPUTS ══ */
         .select-wrap { margin-bottom: 12px; }
         .app-select {
@@ -620,16 +632,16 @@
             </button>
             <div id="masari-voice-status" style="display:none;text-align:center;padding:10px;border-radius:8px;margin-top:10px;font-size:13px;background:rgba(255,215,0,0.08);color:var(--gold-24);"></div>
             <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;" id="masari-service-hints">
-                <span style="font-size:11px;color:var(--text-dim);padding:4px 8px;border:1px solid rgba(255,215,0,0.2);border-radius:20px;">🕌 مسجد</span>
-                <span style="font-size:11px;color:var(--text-dim);padding:4px 8px;border:1px solid rgba(255,215,0,0.2);border-radius:20px;">💊 صيدلية</span>
-                <span style="font-size:11px;color:var(--text-dim);padding:4px 8px;border:1px solid rgba(255,215,0,0.2);border-radius:20px;">🏧 صرّاف</span>
-                <span style="font-size:11px;color:var(--text-dim);padding:4px 8px;border:1px solid rgba(255,215,0,0.2);border-radius:20px;">⛽ وقود</span>
-                <span style="font-size:11px;color:var(--text-dim);padding:4px 8px;border:1px solid rgba(255,215,0,0.2);border-radius:20px;">🐾 بيطري</span>
-                <span style="font-size:11px;color:var(--text-dim);padding:4px 8px;border:1px solid rgba(255,215,0,0.2);border-radius:20px;">🦷 أسنان</span>
-                <span style="font-size:11px;color:var(--text-dim);padding:4px 8px;border:1px solid rgba(255,215,0,0.2);border-radius:20px;">💳 بنك</span>
-                <span style="font-size:11px;color:var(--text-dim);padding:4px 8px;border:1px solid rgba(255,215,0,0.2);border-radius:20px;">👁️ نظارات</span>
-                <span style="font-size:11px;color:var(--text-dim);padding:4px 8px;border:1px solid rgba(255,215,0,0.2);border-radius:20px;">🏥 طبيب</span>
-                <span style="font-size:11px;color:var(--text-dim);padding:4px 8px;border:1px solid rgba(255,215,0,0.2);border-radius:20px;">🗣️ مترجم</span>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('mosque')">🕌 مسجد</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('pharmacy')">💊 صيدلية</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('atm')">🏧 صرّاف</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('fuel')">⛽ وقود</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('vet')">🐾 بيطري</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('dentist')">🦷 أسنان</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('bank')">💳 بنك</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('optician')">👁️ نظارات</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('doctor')">🏥 طبيب</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('translator')">🗣️ مترجم</button>
             </div>
         </div>
     </div>
@@ -788,7 +800,7 @@ function renderEmergencyNumbers(cc) {
 }
 
 // ══ CORE ══
-const GPS_ACC=150, GPS_AGE=30000, GPS_DIST=0.05, GPS_OPT={enableHighAccuracy:true,timeout:20000,maximumAge:0};
+const GPS_ACC=300, GPS_AGE=30000, GPS_DIST=0.05, GPS_OPT={enableHighAccuracy:true,timeout:20000,maximumAge:0};
 const RADII=[0.5,1,2,5,10,20];
 
 function haversineKm(a,b,c,e){const R=6371,dL=d2r(c-a),dO=d2r(e-b),x=Math.sin(dL/2)**2+Math.cos(d2r(a))*Math.cos(d2r(c))*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
@@ -927,10 +939,21 @@ function startGPS(){
     document.getElementById('gps-txt').textContent='📡 جارٍ تحديد الموقع...';
     if(!navigator.geolocation){document.getElementById('gps-txt').textContent='⚠️ GPS غير مدعوم في هذا المتصفح.';return;}
     let init=false;
+    let bestPos=null;
+    let fallbackTimer=setTimeout(function(){
+        if(!init&&bestPos){
+            init=true;
+            applyGps(bestPos,false);
+            const acc=bestPos.coords?Math.round(bestPos.coords.accuracy):'?';
+            document.getElementById('gps-txt').textContent=`📡 GPS نشط (دقة تقريبية: ${acc} م)`;
+        }
+    },8000);
     gpsWatchId=navigator.geolocation.watchPosition(pos=>{
+        if(!bestPos||(pos.coords&&bestPos.coords&&pos.coords.accuracy<bestPos.coords.accuracy))bestPos=pos;
         if(!isGoodGps(pos)){const acc=pos.coords?Math.round(pos.coords.accuracy):'?';document.getElementById('gps-txt').textContent=`📡 انتظار إشارة GPS... (دقة: ${acc} م)`;return;}
+        clearTimeout(fallbackTimer);
         applyGps(pos,init);init=true;
-    },err=>{const msgs={1:'⚠️ رُفض إذن GPS.',2:'⚠️ GPS غير متاح.',3:'⚠️ انتهت مهلة GPS.'};const msg=(err&&msgs[err.code])||'⚠️ خطأ GPS.';document.getElementById('gps-txt').textContent=msg;if(err&&err.code===1&&gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}},GPS_OPT);
+    },err=>{clearTimeout(fallbackTimer);const msgs={1:'⚠️ رُفض إذن GPS.',2:'⚠️ GPS غير متاح.',3:'⚠️ انتهت مهلة GPS.'};const msg=(err&&msgs[err.code])||'⚠️ خطأ GPS.';document.getElementById('gps-txt').textContent=msg;if(err&&err.code===1&&gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}},GPS_OPT);
 }
 
 // ══ PRAYER TIMES ══
@@ -1211,6 +1234,13 @@ var MASARI_SERVICES={
     doctor:   {keys:['طبيب','دكتور','مريض','عيادة','طبيبي','صحة'],url:'https://tabibialam.kieda.online',label:'🏥 طبيبي'},
     translator:{keys:['مترجم','ترجمة','لغة','ترجم','مترجمي'],url:'https://moutarjem.kieda.online',label:'🗣️ مترجمي'}
 };
+
+function masariOpenService(key){
+    var svc=MASARI_SERVICES[key];
+    if(!svc){showNotif('⚠️ خدمة غير معروفة',false);return;}
+    showNotif('🚀 '+svc.label,true);
+    window.open(svc.url,'_blank');
+}
 
 function masariVoiceService(){
     if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){
