@@ -183,6 +183,50 @@
         }
         .filter-btn:hover { border-color: rgba(255,215,0,0.4); color: var(--gold-bright); }
 
+        .masari-service-btn {
+            font-size: 11px; color: var(--text-dim); padding: 7px 12px;
+            border: 1px solid rgba(255,215,0,0.2); border-radius: 20px;
+            background: rgba(255,215,0,0.04); font-family: 'Tajawal', sans-serif;
+            cursor: pointer; transition: all .2s; -webkit-tap-highlight-color: transparent;
+        }
+        .masari-service-btn:hover, .masari-service-btn:active {
+            border-color: rgba(255,215,0,0.65); color: var(--gold-bright);
+            background: rgba(255,215,0,0.14); box-shadow: 0 0 12px rgba(255,215,0,0.25);
+            transform: translateY(-1px);
+        }
+
+        /* ══ INTERRUPTEUR ESSENTIAL (disjoncteur lumineux) ══ */
+        .essential-switch {
+            position: fixed; bottom: 22px; left: 16px; z-index: 500;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+        }
+        .essential-switch-plate {
+            width: 50px; height: 68px; border-radius: 9px;
+            background: linear-gradient(160deg, #1c2240, #0a0e22 60%, #1c2240);
+            border: 1.5px solid rgba(255,215,0,0.5);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 12px rgba(255,215,0,0.2);
+            display: flex; align-items: center; justify-content: center;
+            transition: transform .15s, box-shadow .2s;
+        }
+        .essential-switch:active .essential-switch-plate { transform: scale(0.93); }
+        .essential-switch-lever {
+            width: 19px; height: 30px; border-radius: 4px;
+            background: linear-gradient(160deg, var(--gold-shine) 0%, var(--gold-bright) 55%, var(--gold-deep) 100%);
+            border: 1px solid rgba(0,0,0,0.35);
+            box-shadow: 0 0 8px rgba(255,215,0,0.55), inset 0 1px 1px rgba(255,255,255,0.45);
+            animation: essential-glow 2.6s ease-in-out infinite;
+        }
+        @keyframes essential-glow {
+            0%,100%{ box-shadow: 0 0 8px rgba(255,215,0,0.5), inset 0 1px 1px rgba(255,255,255,0.4); }
+            50%{ box-shadow: 0 0 18px rgba(255,215,0,0.9), inset 0 1px 1px rgba(255,255,255,0.55); }
+        }
+        .essential-switch-label {
+            font-family: 'Tajawal', sans-serif; font-size: 9.5px; font-weight: 800;
+            letter-spacing: 1px; color: var(--gold-bright); text-transform: uppercase;
+            text-shadow: 0 0 8px rgba(255,215,0,0.65);
+        }
+
         /* ══ INPUTS ══ */
         .select-wrap { margin-bottom: 12px; }
         .app-select {
@@ -399,34 +443,11 @@
 <div class="gold-topline"></div>
 <div class="gold-bottomline"></div>
 
-<!-- BOUTON ESSENTIEL RECTANGULAIRE À GAUCHE QUI DÉFILE -->
-<button id="essential-btn" onclick="_goEssential()" style="position:fixed;left:8px;top:50%;transform:translateY(-50%);width:70px;height:55px;background:linear-gradient(135deg,#fffd89,#ffd700,#ffb700);border:2px solid #ffd700;border-radius:6px;box-shadow:0 0 30px rgba(255,215,0,0.8),0 0 50px rgba(255,215,0,0.5);cursor:pointer;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);font-family:'Tajawal',sans-serif;display:flex;align-items:center;justify-content:center;padding:0;z-index:8888;-webkit-tap-highlight-color:transparent;font-size:9px;font-weight:800;color:#020b2e;text-align:center;line-height:1;letter-spacing:0.5px;animation:illuminate 2s ease-in-out infinite;" onmouseover="this.style.boxShadow='0 0 50px rgba(255,215,0,1),0 0 80px rgba(255,215,0,0.7)';this.style.filter='drop-shadow(0 10px 20px rgba(255,215,0,0.6))';" onmouseout="this.style.boxShadow='0 0 30px rgba(255,215,0,0.8),0 0 50px rgba(255,215,0,0.5)';this.style.filter='drop-shadow(0 5px 10px rgba(255,215,0,0.4))';">
-    ESSENTIAL
-</button>
-
-<style>
-@keyframes illuminate {
-    0%, 100% {
-        box-shadow: 0 0 30px rgba(255,215,0,0.8), 0 0 50px rgba(255,215,0,0.5);
-    }
-    50% {
-        box-shadow: 0 0 50px rgba(255,215,0,1), 0 0 80px rgba(255,215,0,0.7), inset 0 0 20px rgba(255,255,255,0.4);
-    }
-}
-</style>
-
-<script>
-window.addEventListener('scroll', function() {
-    const btn = document.getElementById('essential-btn');
-    if (!btn) return;
-    const scrollY = window.scrollY || window.pageYOffset;
-    const viewportHeight = window.innerHeight;
-    const maxScroll = document.documentElement.scrollHeight - viewportHeight;
-    const scrollPercent = maxScroll > 0 ? scrollY / maxScroll : 0;
-    const topPos = 20 + (viewportHeight - 120) * scrollPercent;
-    btn.style.top = topPos + 'px';
-}, { passive: true });
-</script>
+<!-- INTERRUPTEUR ESSENTIAL -->
+<div class="essential-switch" onclick="_goEssential()" title="الانتقال إلى Essential">
+    <div class="essential-switch-plate"><div class="essential-switch-lever"></div></div>
+    <span class="essential-switch-label">Essential</span>
+</div>
 
 <!-- CENTRAL SPINNING ORNAMENT -->
 <div style="position:fixed;inset:0;z-index:1;pointer-events:none;display:flex;align-items:center;justify-content:center;overflow:hidden;">
@@ -600,26 +621,45 @@ window.addEventListener('scroll', function() {
     <!-- ══ مَسَاري ══ -->
     <div class="ornament-divider">✦ 🚗 ★ 🚗 ✦</div>
 
-    <!-- ══ RÉSULTATS DES SERVICES LES PLUS PROCHES ══ -->
-    <div class="sec-head"><span>⭐</span><span>Services à proximité</span></div>
-    <div class="atm-list" id="masari-services-results" style="margin-bottom:16px;">
-        <div style="background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:20px;backdrop-filter:blur(12px);text-align:center;">
-            <div style="font-size:14px;color:var(--text-dim);font-family:'Tajawal',sans-serif;">جاري تحديد أقرب الخدمات...</div>
+    <!-- الخدمات القريبة (بحث تلقائي بنقرة GPS واحدة، لكل التطبيقات) -->
+    <div class="sec-head"><span>🔎</span><span>الخدمات القريبة منك</span></div>
+    <div class="atm-list" style="margin-bottom:16px;">
+        <div style="background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:14px;backdrop-filter:blur(12px);">
+            <div id="masari-allservices-status" style="text-align:center;font-size:12px;color:var(--text-dim);margin-bottom:10px;">📡 في انتظار تحديد موقعك...</div>
+            <div id="masari-allservices-grid" style="display:flex;flex-direction:column;gap:8px;"></div>
         </div>
     </div>
 
-    <!-- نقطة الانطلاق — GPS -->
-    <div class="sec-head"><span>🚩</span><span>نقطة الانطلاق</span></div>
+    <!-- زر الخدمات الصوتي -->
+    <div class="sec-head"><span>🎙️</span><span>الخدمات الصوتية</span></div>
     <div class="atm-list" style="margin-bottom:16px;">
         <div style="background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:14px;backdrop-filter:blur(12px);">
-            <div id="masari-dep-box" style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.2);margin-bottom:8px;">
-                <div style="font-size:22px;">📡</div>
-                <div style="flex:1;">
-                    <div id="masari-gps-status" style="font-size:13px;color:var(--gold-24);font-weight:700;">في انتظار GPS...</div>
-                    <div id="masari-gps-addr" style="font-size:11px;color:var(--text-dim);margin-top:3px;display:none;"></div>
-                </div>
-                <div id="masari-gps-dot" style="width:10px;height:10px;border-radius:50%;background:#e8445a;box-shadow:0 0 8px rgba(232,68,90,0.8);animation:blink 1.5s ease-in-out infinite;flex-shrink:0;"></div>
+            <button onclick="masariVoiceService()" id="masari-voice-btn" style="width:100%;padding:16px;background:linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,215,0,0.06));border:2px solid rgba(255,215,0,0.6);color:var(--gold-bright);border-radius:50px;font-family:'Tajawal',sans-serif;font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 0 25px rgba(255,215,0,0.2);letter-spacing:1px;transition:all 0.3s;">
+                🎙️ قل اسم الخدمة التي تبحث عنها
+            </button>
+            <div id="masari-voice-status" style="display:none;text-align:center;padding:10px;border-radius:8px;margin-top:10px;font-size:13px;background:rgba(255,215,0,0.08);color:var(--gold-24);"></div>
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;" id="masari-service-hints">
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('mosque')">🕌 مسجد</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('pharmacy')">💊 صيدلية</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('atm')">🏧 صرّاف</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('fuel')">⛽ وقود</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('vet')">🐾 بيطري</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('dentist')">🦷 أسنان</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('bank')">💳 بنك</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('optician')">👁️ نظارات</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('doctor')">🏥 طبيب</button>
+                <button type="button" class="masari-service-btn" onclick="masariOpenService('translator')">🗣️ مترجم</button>
             </div>
+            <div id="masari-service-result" style="display:none;margin-top:12px;"></div>
+        </div>
+    </div>
+
+    <!-- موقعي الحالي (نقطة الانطلاق) -->
+    <div class="sec-head"><span>📡</span><span>موقعي الحالي — نقطة الانطلاق</span></div>
+    <div class="atm-list" style="margin-bottom:16px;">
+        <div style="background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:14px;backdrop-filter:blur(12px);">
+            <div id="masari-gps-status" style="text-align:center;padding:10px;border-radius:6px;font-size:13px;background:rgba(255,215,0,0.08);color:var(--gold-24);margin-bottom:8px;">📡 في انتظار GPS...</div>
+            <div id="masari-gps-addr" style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:10px;display:none;"></div>
             <button onclick="masariFixPoint()" id="masari-fix-btn" style="display:none;width:100%;padding:10px;margin:4px 0;background:linear-gradient(135deg,#1a6e1a,#27ae60);color:#fff;border:1px solid #4eff4e;border-radius:6px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.3s cubic-bezier(.16,1,.3,1);">📌 تثبيت هذا الموقع كنقطة مسمّاة</button>
         </div>
     </div>
@@ -640,30 +680,6 @@ window.addEventListener('scroll', function() {
             <select id="masari-arr-saved" onchange="masariSelectSaved()" style="width:100%;padding:10px;margin:6px 0;border:1px solid rgba(255,215,0,0.3);background:rgba(13,26,110,0.5);color:var(--text);border-radius:6px;font-family:'Tajawal',sans-serif;font-size:13px;"><option value="">-- اختر نقطة محفوظة --</option></select>
             <button onclick="masariCalcRoute()" style="width:100%;padding:12px;margin:8px 0 4px;background:linear-gradient(135deg,var(--gold-deep),var(--gold));color:var(--royal-deep);cursor:pointer;font-weight:700;text-transform:uppercase;border:1px solid var(--gold-shine);border-radius:6px;font-family:'Tajawal',sans-serif;font-size:14px;transition:all 0.3s cubic-bezier(.16,1,.3,1);">🔢 حساب المسار الأمثل</button>
             <div id="masari-result"></div>
-        </div>
-    </div>
-
-    <!-- زر الخدمات الصوتي -->
-    <div class="sec-head"><span>🎙️</span><span>الخدمات الصوتية</span></div>
-    <div class="atm-list" style="margin-bottom:16px;">
-        <div style="background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:14px;backdrop-filter:blur(12px);">
-            <button onclick="masariVoiceService()" id="masari-voice-btn" style="width:100%;padding:16px;background:linear-gradient(135deg,rgba(255,215,0,0.18),rgba(255,215,0,0.06));border:2px solid rgba(255,215,0,0.6);color:var(--gold-bright);border-radius:50px;font-family:'Tajawal',sans-serif;font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 0 25px rgba(255,215,0,0.2);letter-spacing:1px;transition:all 0.3s;">
-                🎙️ قل اسم الخدمة التي تبحث عنها
-            </button>
-            <div id="masari-voice-status" style="display:none;text-align:center;padding:10px;border-radius:8px;margin-top:10px;font-size:13px;background:rgba(255,215,0,0.08);color:var(--gold-24);"></div>
-            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;" id="masari-service-hints">
-                <span onclick="masariTapService('mosque')"   style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">🕌 مسجد</span>
-                <span onclick="masariTapService('pharmacy')" style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">💊 صيدلية</span>
-                <span onclick="masariTapService('atm')"      style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">🏧 صرّاف</span>
-                <span onclick="masariTapService('fuel')"     style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">⛽ وقود</span>
-                <span onclick="masariTapService('vet')"      style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">🐾 بيطري</span>
-                <span onclick="masariTapService('dentist')"  style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">🦷 أسنان</span>
-                <span onclick="masariTapService('bank')"     style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">💳 بنك</span>
-                <span onclick="masariTapService('optician')" style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">👁️ نظارات</span>
-                <span onclick="masariTapService('doctor')"   style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">🏥 طبيب</span>
-                <span onclick="masariTapService('translator')" style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">🗣️ مترجم</span>
-                <span onclick="masariTapService('hakawati')" style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.6);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.12);font-weight:700;transition:all .2s;-webkit-tap-highlight-color:transparent;">🎭 حكواتي</span>
-            </div>
         </div>
     </div>
 
@@ -821,7 +837,7 @@ function renderEmergencyNumbers(cc) {
 }
 
 // ══ CORE ══
-const GPS_ACC=150, GPS_AGE=30000, GPS_DIST=0.05, GPS_OPT={enableHighAccuracy:true,timeout:20000,maximumAge:0};
+const GPS_ACC=300, GPS_AGE=30000, GPS_DIST=0.05, GPS_OPT={enableHighAccuracy:true,timeout:20000,maximumAge:0};
 const RADII=[0.5,1,2,5,10,20];
 
 function haversineKm(a,b,c,e){const R=6371,dL=d2r(c-a),dO=d2r(e-b),x=Math.sin(dL/2)**2+Math.cos(d2r(a))*Math.cos(d2r(c))*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
@@ -941,13 +957,22 @@ function initApp(lat,lng){
     const seq=++appLocationSeq; currentLat=lat; currentLng=lng;
     const isManual=document.getElementById('pos-mode-select').value==='manual';
     document.getElementById('gps-txt').textContent=isManual?`الموقع اليدوي: ${lat.toFixed(5)}، ${lng.toFixed(5)}`:`GPS نشط: ${lat.toFixed(5)}، ${lng.toFixed(5)}`;
+    // Mise à jour immédiate de la section "نقطة الانطلاق" (même instant que la barre du haut) — sans attendre la recherche d'adresse
+    masariOnGps(lat,lng,'');
     reverseGeocode(lat,lng).then(geo=>{
         if(seq!==appLocationSeq)return;
-        masariUpdateServicesResults(lat,lng);
         const addr=[geo.city,geo.state,geo.country].filter(Boolean).join('، ');
-        masariOnGps(lat,lng,addr);
+        masariUpdateAddr(addr);
         if(isManual){const parts=[geo.city,geo.state,geo.country].filter(Boolean);const info=document.getElementById('manual-location-info');if(parts.length>0){info.textContent='📍 '+[...new Set(parts)].join('، ');info.style.display='block';}else info.style.display='none';}
     });
+}
+
+function masariUpdateAddr(addr){
+    masariCurrentAddr=addr||'';
+    if(!addr)return;
+    var addrDiv=document.getElementById('masari-gps-addr');
+    addrDiv.textContent='📍 '+addr;
+    addrDiv.style.display='block';
 }
 
 function isGoodGps(p){if(!p||!p.coords)return false;const acc=p.coords.accuracy;if(!Number.isFinite(acc)||acc>GPS_ACC)return false;const age=Number.isFinite(p.timestamp)?Math.max(0,Date.now()-p.timestamp):Infinity;return age<=GPS_AGE;}
@@ -960,10 +985,21 @@ function startGPS(){
     document.getElementById('gps-txt').textContent='📡 جارٍ تحديد الموقع...';
     if(!navigator.geolocation){document.getElementById('gps-txt').textContent='⚠️ GPS غير مدعوم في هذا المتصفح.';return;}
     let init=false;
+    let bestPos=null;
+    let fallbackTimer=setTimeout(function(){
+        if(!init&&bestPos){
+            init=true;
+            applyGps(bestPos,false);
+            const acc=bestPos.coords?Math.round(bestPos.coords.accuracy):'?';
+            document.getElementById('gps-txt').textContent=`📡 GPS نشط (دقة تقريبية: ${acc} م)`;
+        }
+    },8000);
     gpsWatchId=navigator.geolocation.watchPosition(pos=>{
+        if(!bestPos||(pos.coords&&bestPos.coords&&pos.coords.accuracy<bestPos.coords.accuracy))bestPos=pos;
         if(!isGoodGps(pos)){const acc=pos.coords?Math.round(pos.coords.accuracy):'?';document.getElementById('gps-txt').textContent=`📡 انتظار إشارة GPS... (دقة: ${acc} م)`;return;}
+        clearTimeout(fallbackTimer);
         applyGps(pos,init);init=true;
-    },err=>{const msgs={1:'⚠️ رُفض إذن GPS.',2:'⚠️ GPS غير متاح.',3:'⚠️ انتهت مهلة GPS.'};const msg=(err&&msgs[err.code])||'⚠️ خطأ GPS.';document.getElementById('gps-txt').textContent=msg;if(err&&err.code===1&&gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}},GPS_OPT);
+    },err=>{clearTimeout(fallbackTimer);const msgs={1:'⚠️ رُفض إذن GPS.',2:'⚠️ GPS غير متاح.',3:'⚠️ انتهت مهلة GPS.'};const msg=(err&&msgs[err.code])||'⚠️ خطأ GPS.';document.getElementById('gps-txt').textContent=msg;if(err&&err.code===1&&gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}},GPS_OPT);
 }
 
 // ══ PRAYER TIMES ══
@@ -1059,8 +1095,7 @@ function masariInit(){
         masariArrMarker=L.marker([masariArrLat,masariArrLng],{
             icon:L.divIcon({html:'<div style="font-size:28px;filter:drop-shadow(0 0 8px rgba(255,215,0,0.9));transform:translate(-50%,-50%);">🚗</div>',iconSize:[0,0],iconAnchor:[0,0]})
         }).addTo(masariMap);
-
-        // Reverse geocode + calcul distance + orateur
+        // Reverse geocode pour afficher l'adresse
         fetch('https://nominatim.openstreetmap.org/reverse?lat='+masariArrLat+'&lon='+masariArrLng+'&format=json&accept-language=ar')
             .then(function(r){return r.json();})
             .then(function(j){
@@ -1071,30 +1106,6 @@ function masariInit(){
                 document.getElementById('masari-arr-input').dataset.lng=masariArrLng;
                 document.getElementById('masari-map-selected').style.display='block';
                 document.getElementById('masari-map-selected').textContent='📍 '+short;
-
-                // Calcul distance OSRM avec étapes détaillées puis orateur
-                if(masariCurrentLat!==null){
-                    var osrmUrl='https://router.project-osrm.org/route/v1/driving/'+masariCurrentLng+','+masariCurrentLat+';'+masariArrLng+','+masariArrLat+'?overview=full&steps=true&geometries=geojson&annotations=false';
-                    fetch(osrmUrl).then(function(r){return r.json();}).then(function(data){
-                        var km='?', min='?', steps=[];
-                        if(data.routes&&data.routes.length){
-                            km=(data.routes[0].distance/1000).toFixed(1);
-                            min=Math.round(data.routes[0].duration/60);
-                            // Extraire les étapes
-                            if(data.routes[0].legs&&data.routes[0].legs[0]&&data.routes[0].legs[0].steps){
-                                steps=data.routes[0].legs[0].steps;
-                            }
-                        }
-                        document.getElementById('masari-map-selected').innerHTML=
-                            '📍 '+short+'<br>'+
-                            '<span style="color:var(--gold-bright);font-weight:700;">🛣️ '+km+' كم · ⏱️ '+min+' دقيقة</span>';
-                        masariSpeakAndGuide(short, km, min, masariArrLat, masariArrLng, steps);
-                    }).catch(function(){
-                        masariSpeakAndGuide(short,'?','?',masariArrLat,masariArrLng,[]);
-                    });
-                } else {
-                    masariSpeakAndGuide(short,'?','?',masariArrLat,masariArrLng,[]);
-                }
             }).catch(function(){
                 document.getElementById('masari-arr-input').value=masariArrLat.toFixed(5)+', '+masariArrLng.toFixed(5);
                 document.getElementById('masari-arr-input').dataset.lat=masariArrLat;
@@ -1110,193 +1121,11 @@ function masariInit(){
     }
 }
 
-// ── Traduction manœuvres OSRM → Arabe ──
-var MANEUVER_AR={
-    'turn-left':        'انعطف إلى اليسار',
-    'turn-right':       'انعطف إلى اليمين',
-    'turn-slight left': 'انعطف قليلاً إلى اليسار',
-    'turn-slight right':'انعطف قليلاً إلى اليمين',
-    'turn-sharp left':  'انعطف بحدة إلى اليسار',
-    'turn-sharp right': 'انعطف بحدة إلى اليمين',
-    'turn-uturn':       'استدر في الاتجاه المعاكس',
-    'turn-straight':    'واصل السير مستقيماً',
-    'merge-left':       'ادمج إلى اليسار',
-    'merge-right':      'ادمج إلى اليمين',
-    'merge-straight':   'استمر مستقيماً',
-    'fork-left':        'خذ المنعطف الأيسر',
-    'fork-right':       'خذ المنعطف الأيمن',
-    'roundabout-left':  'في الدوار خذ الخروج الأيسر',
-    'roundabout-right': 'في الدوار خذ الخروج الأيمن',
-    'depart':           'ابدأ الرحلة',
-    'arrive':           'وصلت إلى وجهتك',
-    'straight':         'استمر مستقيماً',
-    'default':          'استمر في السير'
-};
-
-function _maneuverToAr(step){
-    if(!step||!step.maneuver)return MANEUVER_AR['default'];
-    var type=step.maneuver.type||'';
-    var mod=step.maneuver.modifier||'';
-    var key=type+(mod?'-'+mod:'');
-    return MANEUVER_AR[key]||MANEUVER_AR[type]||MANEUVER_AR['default'];
-}
-
-function _distToAr(meters){
-    if(!meters||isNaN(meters))return '';
-    if(meters<1000)return 'بعد '+Math.round(meters)+' متر';
-    return 'بعد '+(meters/1000).toFixed(1)+' كيلومتر';
-}
-
-function _buildNavLines(steps){
-    var lines=[];
-    steps.forEach(function(step,i){
-        if(!step.maneuver)return;
-        var instr=_maneuverToAr(step);
-        var dist=_distToAr(step.distance);
-        var road=step.name?'في طريق '+step.name:'';
-        if(step.maneuver.type==='depart'){
-            lines.push('ابدأ السير. '+road);
-        } else if(step.maneuver.type==='arrive'){
-            lines.push('أنت تقترب من وجهتك. وصلت.');
-        } else {
-            lines.push([instr, dist, road].filter(Boolean).join('، '));
-        }
-    });
-    return lines;
-}
-
-function _speakLine(text, lang, cb){
-    if(!window.speechSynthesis){if(cb)cb();return;}
-    window.speechSynthesis.cancel();
-    var u=new SpeechSynthesisUtterance(text);
-    u.lang=lang||'ar-SA'; u.rate=0.85; u.pitch=1; u.volume=1;
-    var voices=window.speechSynthesis.getVoices();
-    var v=voices.find(function(x){return x.lang===(lang||'ar-SA');})
-         ||voices.find(function(x){return x.lang.startsWith((lang||'ar').split('-')[0]);});
-    if(v)u.voice=v;
-    u.onend=function(){if(cb)cb();};
-    u.onerror=function(){if(cb)cb();};
-    window.speechSynthesis.speak(u);
-}
-
-function _speakSequence(lines, idx){
-    if(idx>=lines.length)return;
-    _speakLine(lines[idx],'ar-SA',function(){
-        setTimeout(function(){_speakSequence(lines,idx+1);},600);
-    });
-}
-
-var _navSteps=[], _navActive=false;
-
-function masariSpeakAndGuide(destName, km, min, arrLat, arrLng, steps){
-    if(!window.speechSynthesis)return;
-    _navSteps=steps||[];
-
-    var intro = km!=='?'
-        ? 'وجهتك '+destName+'. المسافة '+km+' كيلومتر، الوقت المقدّر '+min+' دقيقة. هل تريد أن أرشدك خطوة بخطوة؟'
-        : 'وجهتك '+destName+'. هل تريد أن أرشدك؟';
-
-    window.speechSynthesis.cancel();
-    var u=new SpeechSynthesisUtterance(intro);
-    u.lang='ar-SA'; u.rate=0.85; u.pitch=1; u.volume=1;
-    var voices=window.speechSynthesis.getVoices();
-    var v=voices.find(function(x){return x.lang==='ar-SA';})
-         ||voices.find(function(x){return x.lang.startsWith('ar');});
-    if(v)u.voice=v;
-
-    u.onend=function(){
-        // Écouter réponse vocale
-        if(('webkitSpeechRecognition' in window)||('SpeechRecognition' in window)){
-            var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-            var rec=new SR();
-            rec.lang='ar-SA'; rec.continuous=false; rec.interimResults=false;
-            rec.onresult=function(e){
-                var txt=(e.results[0][0].transcript||'').toLowerCase();
-                var yes=txt.includes('نعم')||txt.includes('أيوا')||txt.includes('ايوا')||txt.includes('oui')||txt.includes('yes')||txt.includes('ياه')||txt.includes('طبعا');
-                if(yes){
-                    _masariStartNav(masariArrLat,masariArrLng,_navSteps);
-                } else {
-                    _speakLine('حسناً، يمكنك الضغط على زر البدء لاحقاً','ar-SA',null);
-                }
-            };
-            rec.onerror=function(){ _masariStartNav(masariArrLat,masariArrLng,_navSteps); };
-            rec.start();
-            setTimeout(function(){try{rec.stop();}catch(e){}},5000);
-        } else {
-            _masariStartNav(masariArrLat,masariArrLng,_navSteps);
-        }
-    };
-    window.speechSynthesis.speak(u);
-
-    // Bouton manuel de navigation
-    var res=document.getElementById('masari-result');
-    res.innerHTML='<div style="background:linear-gradient(135deg,rgba(0,100,0,0.12),rgba(0,200,0,0.06));border:1px solid rgba(0,255,0,0.2);border-radius:10px;padding:12px;margin-top:10px;">'
-        +'<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,215,0,0.15);font-size:12px;"><span style="color:var(--text-dim);">المسافة:</span><span style="color:var(--gold-bright);font-weight:700;">'+km+' كم</span></div>'
-        +'<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,215,0,0.15);font-size:12px;"><span style="color:var(--text-dim);">الوقت:</span><span style="color:var(--gold-bright);font-weight:700;">'+min+' دقيقة</span></div>'
-        +'<button onclick="_masariStartNav('+masariArrLat+','+masariArrLng+',_navSteps)" style="width:100%;margin-top:10px;padding:12px;background:linear-gradient(135deg,#1a6e1a,#27ae60);color:#fff;border:1px solid #4eff4e;border-radius:8px;font-family:\'Tajawal\',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">🔊 ابدأ الإرشاد الصوتي</button>'
-        +'<a href="https://www.google.com/maps/dir/'+masariCurrentLat+','+masariCurrentLng+'/'+masariArrLat+','+masariArrLng+'/?travelmode=driving" target="_blank" style="display:block;text-align:center;margin-top:8px;padding:10px;background:linear-gradient(135deg,var(--gold-deep),var(--gold));color:var(--royal-deep);border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;">🗺️ خرائط جوجل</a>'
-        +'</div>';
-}
-
-function _masariStartNav(arrLat,arrLng,steps){
-    _navActive=true;
-    if(steps&&steps.length>0){
-        var lines=_buildNavLines(steps);
-        _speakLine('جيد، سأرشدك الآن. استعد للانطلاق.','ar-SA',function(){
-            setTimeout(function(){_speakSequence(lines,0);},500);
-        });
-    } else {
-        _speakLine('جاري فتح خرائط جوجل للإرشاد','ar-SA',function(){
-            var url='https://www.google.com/maps/dir/'+masariCurrentLat+','+masariCurrentLng+'/'+arrLat+','+arrLng+'/?travelmode=driving';
-            window.open(url,'_blank');
-        });
-    }
-}
-
-function _masariOpenMaps(arrLat,arrLng){
-    if(masariCurrentLat===null)return;
-    var url='https://www.google.com/maps/dir/'+masariCurrentLat+','+masariCurrentLng+'/'+arrLat+','+arrLng+'/?travelmode=driving';
-    window.open(url,'_blank');
-}
+function masariSave(){
     localStorage.setItem('masariPoints',JSON.stringify(masariPoints));
     masariRenderPoints();
     masariUpdateSavedSelect();
     document.getElementById('stat-total').textContent=Object.keys(masariPoints).length;
-}
-
-function masariUpdateServicesResults(lat, lng) {
-    const resultsDiv = document.getElementById('masari-services-results');
-    if (!lat || !lng) {
-        resultsDiv.innerHTML = '<div style="background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:20px;backdrop-filter:blur(12px);text-align:center;"><div style="font-size:14px;color:var(--text-dim);font-family:\'Tajawal\',sans-serif;">في انتظار موقع GPS...</div></div>';
-        return;
-    }
-
-    const services = [
-        { key: 'mosque', icon: '🕌', name: 'المسجد الأقرب', url: 'https://salati.kieda.online' },
-        { key: 'pharmacy', icon: '💊', name: 'الصيدلية الأقرب', url: 'https://saydaliati.kieda.online' },
-        { key: 'atm', icon: '🏧', name: 'صراف آلي', url: 'https://dabi.kieda.online' },
-        { key: 'fuel', icon: '⛽', name: 'محطة وقود', url: 'https://mahattati.kieda.online' },
-        { key: 'doctor', icon: '👨‍⚕️', name: 'طبيب', url: 'https://tabibi.kieda.online' }
-    ];
-
-    let html = '';
-    services.forEach(svc => {
-        html += `<div style="background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:14px;margin-bottom:10px;backdrop-filter:blur(12px);display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,215,0,0.08)';this.style.borderColor='rgba(255,215,0,0.5)';" onmouseout="this.style.background='var(--card)';this.style.borderColor='var(--card-border)';" onclick="window.open('${svc.url}?lat=${lat}&lng=${lng}','_blank')">
-            <div style="font-size:24px;min-width:40px;text-align:center;">${svc.icon}</div>
-            <div style="flex:1;">
-                <div style="font-size:13px;font-weight:700;color:var(--gold-24);font-family:'Tajawal',sans-serif;">${svc.name}</div>
-                <div style="font-size:11px;color:var(--text-dim);margin-top:2px;font-family:'Tajawal',sans-serif;">اضغط للبحث</div>
-            </div>
-            <div style="font-size:16px;color:var(--gold-24);">→</div>
-        </div>`;
-    });
-
-    resultsDiv.innerHTML = html;
-}
-
-// Appeler quand GPS se met à jour
-function _updateGpsLocation(lat, lng) {
-    masariUpdateServicesResults(lat, lng);
 }
 
 function masariRenderPoints(){
@@ -1351,59 +1180,29 @@ function masariSelectSaved(){
 }
 
 // Appelée depuis initApp (GPS) — demande à l'utilisateur s'il veut fixer ce point
-var _masariPreloaded=false;
-function masariPreloadAllApps(lat,lng){
-    if(_masariPreloaded)return;
-    _masariPreloaded=true;
-    var apps=[
-        'https://essential.kieda.online',
-        'https://salati.kieda.online',
-        'https://saydaliati.kieda.online',
-        'https://dabi.kieda.online',
-        'https://mahattati.kieda.online',
-        'https://albaytari.kieda.online',
-        'https://dentiste.kieda.online',
-        'https://masrifi.kieda.online',
-        'https://nadharatioptic.kieda.online',
-        'https://tabibialam.kieda.online',
-        'https://moutarjem.kieda.online'
-    ];
-    var coords='?voice=1&lat='+lat+'&lng='+lng;
-    apps.forEach(function(url,i){
-        setTimeout(function(){
-            var iframe=document.createElement('iframe');
-            iframe.src=url+coords;
-            iframe.style.cssText='position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;z-index:-1;border:none;left:-9999px;top:-9999px;';
-            iframe.setAttribute('aria-hidden','true');
-            document.body.appendChild(iframe);
-        },i*200);
-    });
-}
-
 function masariOnGps(lat,lng,addr){
     masariCurrentLat=lat; masariCurrentLng=lng; masariCurrentAddr=addr||'';
-    // Lancer toutes les apps en arrière-plan avec les coords GPS
-    masariPreloadAllApps(lat,lng);
     var st=document.getElementById('masari-gps-status');
     var addrDiv=document.getElementById('masari-gps-addr');
     var fixBtn=document.getElementById('masari-fix-btn');
-    var dot=document.getElementById('masari-gps-dot');
-    var box=document.getElementById('masari-dep-box');
-    // Afficher position GPS comme point de départ
-    st.textContent='🚩 '+lat.toFixed(5)+' — '+lng.toFixed(5);
+    st.textContent='✅ GPS نشط — '+lat.toFixed(5)+', '+lng.toFixed(5);
+    st.style.background='rgba(0,128,0,0.15)';
+    st.style.color='#4eff7e';
     if(addr){addrDiv.textContent='📍 '+addr;addrDiv.style.display='block';}
-    // Dot vert = GPS actif
-    if(dot){dot.style.background='#27ae60';dot.style.boxShadow='0 0 10px rgba(39,174,96,0.9)';}
-    if(box){box.style.borderColor='rgba(39,174,96,0.5)';box.style.background='rgba(39,174,96,0.08)';}
     fixBtn.style.display='block';
-    // Centre la carte sur GPS
-    if(masariMap) masariMap.setView([lat,lng],13);
-    L.circleMarker([lat,lng],{radius:10,color:'#4a90d9',fillColor:'#4a90d9',fillOpacity:0.8,weight:3}).bindPopup('📡 موقعك الحالي').addTo(masariMap);
+    // Centrer la carte sur le GPS et ajouter marqueur départ bleu
+    if(masariMap){
+        masariMap.setView([lat,lng],13);
+        L.circleMarker([lat,lng],{radius:10,color:'#4a90d9',fillColor:'#4a90d9',fillOpacity:0.8,weight:3}).bindPopup('📡 موقعك الحالي').addTo(masariMap);
+    }
     document.getElementById('stat-nearest').textContent='جاهز';
+    // طلب GPS واحد يكفي لتشغيل بحث كل الخدمات (مسجد، صيدلية، صرّاف...) بالتوازي
+    masariSearchAllServices();
+    // Demande automatique si pas encore demandé pour cette session
     if(!masariFixAsked){
         masariFixAsked=true;
         setTimeout(function(){
-            var rep=confirm('📌 هل تريد تثبيت موقعك الحالي كنقطة مسمّاة؟\n\n'+(addr||lat.toFixed(5)+', '+lng.toFixed(5)));
+            var rep=confirm('📌 هل تريد تثبيت موقعك الحالي كنقطة مسمّاة؟\n\n'+lat.toFixed(5)+', '+lng.toFixed(5)+(addr?'\n'+addr:''));
             if(rep) masariFixPoint();
         },1500);
     }
@@ -1471,97 +1270,164 @@ async function masariCalcRoute(){
 }
 
 // ══ VOCAL SERVICES ══
-// ── Tap direct sur service — dit le nom ET ouvre l'app ──
-var MASARI_TAP_SERVICES={
-    mosque:    {ar:'جاري فتح تطبيق المساجد',     url:'https://salati.kieda.online'},
-    pharmacy:  {ar:'جاري فتح تطبيق الصيدلية',    url:'https://saydaliati.kieda.online'},
-    atm:       {ar:'جاري فتح تطبيق الصرّاف',     url:'https://dabi.kieda.online'},
-    fuel:      {ar:'جاري فتح محطة الوقود',       url:'https://mahattati.kieda.online'},
-    vet:       {ar:'جاري فتح تطبيق البيطري',     url:'https://albaytari.kieda.online'},
-    dentist:   {ar:'جاري فتح طبيب الأسنان',      url:'https://dentiste.kieda.online'},
-    bank:      {ar:'جاري فتح تطبيق البنك',        url:'https://masrifi.kieda.online'},
-    optician:  {ar:'جاري فتح تطبيق البصريات',    url:'https://nadharatioptic.kieda.online'},
-    doctor:    {ar:'جاري فتح تطبيق الطبيب العام',url:'https://tabibialam.kieda.online'},
-    translator:{ar:'جاري فتح المترجم الصوتي',    url:'https://moutarjem.kieda.online'},
-    hakawati: {ar:'hakawati', url:''}
+var MASARI_SERVICES={
+    mosque:   {keys:['مسجد','صلاة','جامع','صلاتي','mosque','masjid','jami','salat','salati','prayer','priere','prière'],url:'https://salati.kieda.online',label:'🕌 صلاتي'},
+    pharmacy: {keys:['صيدلية','دواء','صيدلانية','صيدلياتي','pharmacy','pharmacie','medicament','médicament','daoua','dawa','saydaliya','saydaliati','saydaliyati','medicine','médecine'],url:'https://saydaliati.kieda.online',label:'💊 صيدليتي'},
+    atm:      {keys:['صراف','صرّاف','فلوس','دابي','ماكينة','أموال','atm','distributeur','argent','cash','dabi','sarraf','guichet','retrait'],url:'https://dabi.kieda.online',label:'🏧 دابي'},
+    fuel:     {keys:['وقود','بنزين','محطة','محطتي','كارورة','essence','gas','gasoline','fuel','station','carburant','mahattati'],url:'https://mahattati.kieda.online',label:'⛽ محطتي'},
+    vet:      {keys:['بيطري','حيوان','كلب','قطة','بيطرية','بيطار','vet','veterinaire','vétérinaire','animal','chien','chat','baytari'],url:'https://albaytari.kieda.online',label:'🐾 البيطري'},
+    dentist:  {keys:['أسنان','سن','طبيب أسنان','دنتيست','ضرس','dentist','dentiste','teeth','dent','dents','asnan'],url:'https://dentiste.kieda.online',label:'🦷 طبيب الأسنان'},
+    bank:     {keys:['بنك','مصرف','مصرفي','بنكي','حساب','bank','banque','compte','masrifi'],url:'https://masrifi.kieda.online',label:'💳 مصرفي'},
+    optician: {keys:['نظارات','عيون','بصريات','عيني','نظارة','optician','opticien','lunettes','glasses','nadharat'],url:'https://nadharatioptic.kieda.online',label:'👁️ نظاراتي'},
+    doctor:   {keys:['طبيب','دكتور','مريض','عيادة','طبيبي','صحة','doctor','docteur','medecin','médecin','tabib','health','sante','santé'],url:'https://tabibialam.kieda.online',label:'🏥 طبيبي'},
+    translator:{keys:['مترجم','ترجمة','لغة','ترجم','مترجمي','translator','traducteur','traduction','translate','moutarjem'],url:'https://moutarjem.kieda.online',label:'🗣️ مترجمي'}
 };
 
-// ── 10 حكايات في أسلوب الحكواتي ──
-var HAKAWATI_STORIES=[
-    'يا ناس يا كرام... كان يا ما كان، في قديم الزمان، في بلاد بعيدة عن العيان، كان فيها ملك عادل ما عنده ولد ولا بنان. جابوله الحكما والعلما، قالوله: يا سيدي، روح على عين الشمس الصغيرة، في وسط الغابة الكبيرة، فيها سمكة ذهبية تجيب الأمنيات. مشى الملك بوحده، بلا عسكر بلا خيل، لقى العين، لقى السمكة، قالتلو: يا ملك، أنا نعطيك ولد، لكن لازم تعطيني وعد — ما تبني حيطان بين الناس. وعدها. ورجع للدار. ومن يوميها، المملكة عاشت بالمحبة والأمان... هكذا تكون الملوك يا ناس.',
+// ── نوع البحث الجغرافي الخاص بكل خدمة (وفق نموذج البحث الخاص بها) ──
+var MASARI_SEARCH_TAGS={
+    mosque:['place_of_worship'],
+    pharmacy:['pharmacy'],
+    atm:['atm','bank'],
+    fuel:['fuel'],
+    vet:['veterinary'],
+    dentist:['dentist'],
+    bank:['bank'],
+    optician:['optician'],
+    doctor:['doctors','clinic'],
+    translator:null // لا يوجد بحث جغرافي مناسب للترجمة — يفتح التطبيق مباشرة
+};
 
-    'سمعوني يا اللي تسمعوني... كانت مرة عجوز في حارة الشيوخ، تبيع الحلوى للصغار. كل نهار تقول: حلوى حلوى، من أكل منها ما ينساش أمه. جا يوم واحد غني، قالها: كم ثمنها؟ قالت: ما فيها ثمن، الثمن بكرة. أكل، ورجع للبيت، ذكّره بأمه اللي نساها من سنين. بكى. مشى عندها. لقاها تستنى. الحلوى كانت ذكرى... وكل ذكرى حلوة ما تتشراش.',
+var _serviceSearchSeq=0;
 
-    'واش تقولولي يا ناس... في واد بعيد كانت شجرة ما تطلعش في كل عام غير ورقة وحدة. الورقة فيها مكتوب اسم واحد. اللي يلقى اسمه على الورقة، ربحان. جاء واحد فقير لقى اسمه. قال: وين جائزتي؟ قالتلو الشجرة بصوت خفيف: جائزتك إنك لقيت اسمك... يعني ما تنساش منك. ومشى الفقير وهو فاهم الدرس.',
-
-    'يا سيدي يا من تسمعني... كان تاجر عنده ثلاث بنات. الكبيرة طلبت ذهب. الوسطى طلبت حرير. الصغيرة قالت: يا بابا، جيبلي بسمة. ضحك، قال: البسمة ما تتجيبش. قالت: تتجيب يا بابا، من الطريق لقى إنسان محتاج وعاونتو. رجع للبيت، وجه يضحك بلا ما يعرف. البنت الصغيرة قالت: هذي هي البسمة.',
-
-    'اسمعوني اسمعوني يا أهل الفهم... في جزيرة ما فيها غير نجمة وحدة في السما، كانوا الناس يتخاصموا على النجمة. هذا يقول منتعي، هذا يقول لا منتعي. جا حكيم قاعد في الوسط، قال: النجمة ما هيش لواحد. النجمة للظلمة. بدونها كل واحد فيكم ضايع. من يومها ما عادوش يتخاصموا... يتفرجوا فيها مع بعض.',
-
-    'حديثي يا من أصغى لي... ولد صغير من المدينة القديمة، كان يجري كل صباح عند الشيخ العجوز. يقوله: علمني. الشيخ كل مرة يقوله: اجلس. الولد يجلس. يصمتوا. ساعة ساعتين. يقوم يمشي. هكذا سنة كاملة. في الأخير قال الولد: شيخي، ما علمتنيش والو. قال: علمتك الصمت. والصمت أول الحكمة.',
-
-    'يا أهل الحي يا جيران... كانت امرأة تبكي كل يوم على شجرة يابسة في حوشها. جارتها قالت: علاش تبكي على شجرة ماتت؟ قالت: ما ماتتش. هي تستنى. وبالفعل، من دموعها كل يوم، في ربيع جا، الشجرة طلعت ورقة خضرة. الصبر نعمة... والدموع أحيانًا تسقي ما ييأسناش منه.',
-
-    'كانت كانت يا سادة يا كرام... سلطان جابوله خبر إن في مملكته لص ما يتمسكش. كل ما يمسكوه يهرب. أمر السلطان: اتركوه. تعجبوا الوزرا. قال: اللي يهرب دايمًا، عنده سر. تبعوه. لقوه يسرق من الغني ويعطي الفقير. السلطان ضحك وقال: هذا ما هوش لص... هذا ميزان.',
-
-    'اسمعوا مني يا من في القلب رحمة... في سوق قديم كان بياع يبيع الوقت. يقول: تعالى اشتري دقيقة، اشتري ساعة. الناس يضحكوا. يوم مريض جا عنده، قاله: بيعني ساعة مع أمي اللي ماتت. بكى البياع. قال: الوقت اللي فات ما يتشراش. اصرف اللي بقى معمن تحب. وأقفل دكانه... للأبد.',
-
-    'وأخيرًا يا ناس، الحكاية الأخيرة لهذه الليلة... ولد ورث من أبيه صندوق مقفل. سأل أمه: فين المفتاح؟ قالت: مفتاحو الطيبة. ضحك، قال: هذا كلام. مشى حياته. وفي آخرها، لما صار إنسانًا طيبًا حقيقيًا... الصندوق فتح وحده. فيه رسالة من أبيه: الطيبة تفتح كل الأبواب يا ولدي.'
-];
-
-function masariTapService(key){
-    if(key==='hakawati'){
-        masariTellStory();
+async function masariOpenService(key){
+    var svc=MASARI_SERVICES[key];
+    if(!svc){showNotif('⚠️ خدمة غير معروفة',false);return;}
+    var tags=MASARI_SEARCH_TAGS[key];
+    if(!tags||masariCurrentLat===null){
+        showNotif('🚀 '+svc.label,true);
+        window.open(svc.url,'_blank');
         return;
     }
-    var svc=MASARI_TAP_SERVICES[key];
-    if(!svc)return;
-    if(window.speechSynthesis){
-        window.speechSynthesis.cancel();
-        var u=new SpeechSynthesisUtterance(svc.ar);
-        u.lang='ar-SA'; u.rate=0.9; u.volume=1;
-        var voices=window.speechSynthesis.getVoices();
-        var v=voices.find(function(x){return x.lang==='ar-SA';})
-             ||voices.find(function(x){return x.lang.startsWith('ar');});
-        if(v)u.voice=v;
-        u.onend=function(){var _gc=masariCurrentLat?'&lat='+masariCurrentLat+'&lng='+masariCurrentLng:'';window.open(svc.url+'?voice=1'+_gc,'_blank');};
-        u.onerror=function(){var _gc=masariCurrentLat?'&lat='+masariCurrentLat+'&lng='+masariCurrentLng:'';window.open(svc.url+'?voice=1'+_gc,'_blank');};
-        window.speechSynthesis.speak(u);
-    } else {
-        var _gc2=masariCurrentLat?'&lat='+masariCurrentLat+'&lng='+masariCurrentLng:'';window.open(svc.url+'?voice=1'+_gc2,'_blank');
+    masariShowServiceResult(svc,'loading');
+    var seq=++_serviceSearchSeq;
+    try{
+        var found=await masariFindNearest(masariCurrentLat,masariCurrentLng,tags);
+        if(seq!==_serviceSearchSeq)return;
+        masariShowServiceResult(svc,found?'found':'empty',found);
+    }catch(e){
+        if(seq!==_serviceSearchSeq)return;
+        masariShowServiceResult(svc,'error');
     }
-    showNotif('🚀 '+svc.ar,true);
 }
 
-var _hakawatiIdx=0;
-function masariTellStory(){
-    if(!window.speechSynthesis){showNotif('المتصفح لا يدعم الصوت',false);return;}
-    var story=HAKAWATI_STORIES[_hakawatiIdx % HAKAWATI_STORIES.length];
-    _hakawatiIdx++;
-    window.speechSynthesis.cancel();
-    showNotif('🎭 الحكواتي يحكي...',true);
-    var u=new SpeechSynthesisUtterance(story);
-    u.lang='ar-SA'; u.rate=0.78; u.pitch=1.05; u.volume=1;
-    var voices=window.speechSynthesis.getVoices();
-    var v=voices.find(function(x){return x.lang==='ar-SA';})
-         ||voices.find(function(x){return x.lang.startsWith('ar');});
-    if(v)u.voice=v;
-    window.speechSynthesis.speak(u);
+async function masariFindNearest(lat,lng,tags){
+    for(var i=0;i<RADII.length;i++){
+        var r=RADII[i];
+        var all=[];
+        for(var t=0;t<tags.length;t++){
+            try{
+                var ctrl=new AbortController();
+                var timer=setTimeout(function(){ctrl.abort();},10000);
+                var url='https://nominatim.openstreetmap.org/search?format=jsonv2&amenity='+tags[t]+'&viewbox='+viewbox(lat,lng,r)+'&bounded=1&limit=20&accept-language=ar';
+                var res=await fetch(url,{signal:ctrl.signal});
+                clearTimeout(timer);
+                if(res.ok){var data=await res.json();all=all.concat(data);}
+            }catch(e){}
+        }
+        if(all.length){
+            var norm=all.map(function(p){
+                var mL=parseFloat(p.lat),mO=parseFloat(p.lon);
+                var n=p.name||(p.display_name?p.display_name.split(',')[0].trim():'');
+                return{name:n,lat:mL,lon:mO,dist:haversineKm(lat,lng,mL,mO)};
+            }).filter(function(m){return m.dist<=r&&Number.isFinite(m.dist);}).sort(function(a,b){return a.dist-b.dist;});
+            if(norm.length)return norm[0];
+        }
+    }
+    return null;
 }
 
-var MASARI_SERVICES={
-    mosque:   {keys:['مسجد','صلاة','جامع','صلاتي'],url:'https://salati.kieda.online',label:'🕌 صلاتي'},
-    pharmacy: {keys:['صيدلية','دواء','صيدلانية','صيدلياتي'],url:'https://saydaliati.kieda.online',label:'💊 صيدليتي'},
-    atm:      {keys:['صراف','صرّاف','فلوس','دابي','ماكينة','أموال'],url:'https://dabi.kieda.online',label:'🏧 دابي'},
-    fuel:     {keys:['وقود','بنزين','محطة','محطتي','كارورة'],url:'https://mahattati.kieda.online',label:'⛽ محطتي'},
-    vet:      {keys:['بيطري','حيوان','كلب','قطة','بيطرية','بيطار'],url:'https://albaytari.kieda.online',label:'🐾 البيطري'},
-    dentist:  {keys:['أسنان','سن','طبيب أسنان','دنتيست','ضرس'],url:'https://dentiste.kieda.online',label:'🦷 طبيب الأسنان'},
-    bank:     {keys:['بنك','مصرف','مصرفي','بنكي','حساب'],url:'https://masrifi.kieda.online',label:'💳 مصرفي'},
-    optician: {keys:['نظارات','عيون','بصريات','عيني','نظارة'],url:'https://nadharatioptic.kieda.online',label:'👁️ نظاراتي'},
-    doctor:   {keys:['طبيب','دكتور','مريض','عيادة','طبيبي','صحة'],url:'https://tabibialam.kieda.online',label:'🏥 طبيبي'},
-    translator:{keys:['مترجم','ترجمة','لغة','ترجم','مترجمي'],url:'https://moutarjem.kieda.online',label:'🗣️ مترجمي'},
-    hakawati: {keys:['حكواتي','حكاية','حكي','قصة','احكيلي','احكي'],url:'hakawati',label:'🎭 الحكواتي'}
-};
+// ══ لوحة الخدمات القريبة الموحّدة — طلب GPS واحد يشغّل بحث كل التطبيقات بالتوازي ══
+var MASARI_ALL_CATEGORIES=['mosque','pharmacy','atm','fuel','vet','dentist','bank','optician','doctor','translator'];
+var _allServicesSeq=0;
+
+function masariRenderAllServicesSkeleton(){
+    var grid=document.getElementById('masari-allservices-grid');
+    if(!grid)return;
+    grid.innerHTML='';
+    MASARI_ALL_CATEGORIES.forEach(function(key){
+        var svc=MASARI_SERVICES[key];
+        var row=document.createElement('div');
+        row.id='masari-cat-'+key;
+        row.style.cssText='background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);border-radius:10px;padding:10px 12px;';
+        row.innerHTML='<div style="font-size:13px;color:var(--gold-bright);font-weight:700;margin-bottom:4px;">'+svc.label+'</div><div class="masari-cat-body" style="font-size:12px;color:var(--text-dim);">⏳ جارٍ البحث...</div>';
+        grid.appendChild(row);
+    });
+}
+
+async function masariSearchOneCategory(key,lat,lng,seq){
+    var svc=MASARI_SERVICES[key];
+    var tags=MASARI_SEARCH_TAGS[key];
+    var row=document.getElementById('masari-cat-'+key);
+    var body=row?row.querySelector('.masari-cat-body'):null;
+    if(!tags){ // مترجم: لا يوجد بحث جغرافي مناسب — رابط مباشر فقط
+        if(body&&seq===_allServicesSeq) body.innerHTML='<a href="'+svc.url+'" target="_blank" rel="noopener" style="color:var(--gold-bright);">🚀 فتح '+svc.label+'</a>';
+        return;
+    }
+    try{
+        var found=await masariFindNearest(lat,lng,tags);
+        if(seq!==_allServicesSeq||!body)return;
+        if(found){
+            var distTxt=found.dist<1?Math.round(found.dist*1000)+' م':found.dist.toFixed(1)+' كم';
+            var nm=found.name||svc.label;
+            body.innerHTML='📍 '+nm+' — '+distTxt+' &nbsp;<a href="https://www.google.com/maps/search/?api=1&query='+found.lat+'%2C'+found.lon+'" target="_blank" rel="noopener" style="color:var(--gold-bright);">🗺️ خريطة</a>';
+        }else{
+            body.innerHTML='⚠️ لا توجد نتيجة قريبة — <a href="'+svc.url+'" target="_blank" rel="noopener" style="color:var(--gold-bright);">فتح التطبيق</a>';
+        }
+    }catch(e){
+        if(seq===_allServicesSeq&&body) body.innerHTML='⚠️ تعذّر البحث';
+    }
+}
+
+async function masariSearchAllServices(){
+    if(masariCurrentLat===null)return;
+    var seq=++_allServicesSeq;
+    var st=document.getElementById('masari-allservices-status');
+    if(st)st.textContent='🔎 يتم البحث في كل الخدمات الآن...';
+    masariRenderAllServicesSkeleton();
+    var lat=masariCurrentLat, lng=masariCurrentLng;
+    // البحث واحداً تلو الآخر (وليس كلها دفعة واحدة) حتى لا يتم حظر الطلبات من خادم الخرائط المجاني
+    for(var i=0;i<MASARI_ALL_CATEGORIES.length;i++){
+        if(seq!==_allServicesSeq)return;
+        await masariSearchOneCategory(MASARI_ALL_CATEGORIES[i],lat,lng,seq);
+        await new Promise(function(r){setTimeout(r,200);});
+    }
+    if(seq===_allServicesSeq&&st)st.textContent='✅ نتائج الخدمات القريبة منك:';
+}
+
+function masariShowServiceResult(svc,state,found){
+    var box=document.getElementById('masari-service-result');
+    if(!box)return;
+    box.style.display='block';
+    if(state==='loading'){
+        box.innerHTML='<div style="text-align:center;padding:10px;font-size:13px;color:var(--gold-24);">🔎 جارٍ البحث عن أقرب '+svc.label+'...</div>';
+    }else if(state==='found'&&found){
+        var distTxt=found.dist<1?Math.round(found.dist*1000)+' م':found.dist.toFixed(1)+' كم';
+        var nm=found.name||svc.label;
+        box.innerHTML=
+            '<div style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3);border-radius:10px;padding:12px;">'+
+            '<div style="font-size:13px;color:var(--gold-bright);font-weight:700;margin-bottom:6px;">'+svc.label+' الأقرب</div>'+
+            '<div style="font-size:13px;color:var(--text);margin-bottom:2px;">📍 '+nm+'</div>'+
+            '<div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">على بعد '+distTxt+'</div>'+
+            '<div style="display:flex;gap:8px;">'+
+            '<a href="https://www.google.com/maps/search/?api=1&query='+found.lat+'%2C'+found.lon+'" target="_blank" rel="noopener" style="flex:1;text-align:center;padding:9px;border-radius:8px;background:linear-gradient(135deg,var(--gold-deep),var(--gold));color:var(--royal-deep);font-weight:700;font-size:12px;text-decoration:none;">🗺️ خريطة</a>'+
+            '<button type="button" onclick="window.open(\''+svc.url+'\',\'_blank\')" style="flex:1;padding:9px;border-radius:8px;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);color:var(--gold-bright);font-weight:700;font-size:12px;cursor:pointer;">🚀 فتح التطبيق</button>'+
+            '</div></div>';
+    }else if(state==='empty'){
+        box.innerHTML='<div style="text-align:center;padding:10px 8px;font-size:13px;color:var(--text-dim);">⚠️ لم يتم العثور على نتيجة قريبة. <a href="'+svc.url+'" target="_blank" style="color:var(--gold-bright);">فتح '+svc.label+'</a></div>';
+    }else{
+        box.innerHTML='<div style="text-align:center;padding:10px 8px;font-size:13px;color:var(--red);">⚠️ تعذّر البحث. <a href="'+svc.url+'" target="_blank" style="color:var(--gold-bright);">فتح '+svc.label+'</a></div>';
+    }
+}
 
 function masariVoiceService(){
     if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){
@@ -1580,25 +1446,18 @@ function masariVoiceService(){
     rec.onresult=function(e){
         var txt=(e.results[0][0].transcript||'').toLowerCase().trim();
         st.textContent='سمعت: «'+txt+'»';
-        var found=null;
+        var foundKey=null;
         for(var key in MASARI_SERVICES){
             var svc=MASARI_SERVICES[key];
             for(var i=0;i<svc.keys.length;i++){
-                if(txt.includes(svc.keys[i])){found=svc;break;}
+                if(txt.includes(svc.keys[i])){foundKey=key;break;}
             }
-            if(found)break;
+            if(foundKey)break;
         }
-        if(found){
-            if(found.url==='hakawati'){
-                st.textContent='🎭 الحكواتي يحكي...';
-                st.style.color='#ffd700';
-                setTimeout(function(){masariTellStory();},300);
-            } else {
-                st.textContent='✅ جاري فتح '+found.label+'...';
-                st.style.color='#4eff7e';
-                showNotif('🚀 '+found.label,true);
-                setTimeout(function(){var _gc3=masariCurrentLat?'&lat='+masariCurrentLat+'&lng='+masariCurrentLng:'';window.open(found.url+'?voice=1'+_gc3,'_blank');},600);
-            }
+        if(foundKey){
+            st.textContent='✅ جاري البحث عن أقرب '+MASARI_SERVICES[foundKey].label+'...';
+            st.style.color='#4eff7e';
+            masariOpenService(foundKey);
         }else{
             st.textContent='⚠️ لم أفهم. حاول: مسجد، صيدلية، صرّاف، بنك...';
             st.style.color='var(--gold-24)';
@@ -1614,18 +1473,34 @@ function masariVoiceService(){
     };
     rec.start();
 }
-var _swipeStartX=null, _swipeStartY=null, _swipeIndicator=null;
 var _essentialUrl='https://essential.kieda.online';
 
-// Preload déclenché après GPS
-
-function _createIndicator(){
-    if(_swipeIndicator)return;
-    _swipeIndicator=document.createElement('button');
-    _swipeIndicator.style.cssText='position:fixed;top:50%;transform:translateY(-50%);background:linear-gradient(135deg,var(--gold-deep),var(--gold));border:2px solid var(--gold-shine);border-radius:50%;padding:16px 18px;font-family:"Tajawal",sans-serif;font-size:24px;color:var(--royal-deep);z-index:9999;transition:opacity .2s,left .2s,right .2s;pointer-events:auto;box-shadow:0 0 30px rgba(255,215,0,0.6),inset 0 0 15px rgba(255,255,200,0.3);cursor:pointer;font-weight:700;';
-    _swipeIndicator.onclick=_goEssential;
-    document.body.appendChild(_swipeIndicator);
-}
+// ══ PRELOAD TOUTES LES APPS dès le lancement ══
+(function(){
+    var urls=[
+        'https://essential.kieda.online',
+        'https://salati.kieda.online',
+        'https://saydaliati.kieda.online',
+        'https://dabi.kieda.online',
+        'https://mahattati.kieda.online',
+        'https://albaytari.kieda.online',
+        'https://dentiste.kieda.online',
+        'https://masrifi.kieda.online',
+        'https://nadharatioptic.kieda.online',
+        'https://tabibialam.kieda.online',
+        'https://moutarjem.kieda.online'
+    ];
+    urls.forEach(function(url,i){
+        setTimeout(function(){
+            var iframe=document.createElement('iframe');
+            iframe.src=url;
+            iframe.style.cssText='position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;z-index:-1;border:none;left:-9999px;top:-9999px;';
+            iframe.setAttribute('aria-hidden','true');
+            iframe.setAttribute('loading','eager');
+            document.body.appendChild(iframe);
+        },i*300); // échelonné toutes les 300ms pour pas surcharger
+    });
+})();
 
 function _goEssential(){
     var overlay=document.createElement('div');
@@ -1634,23 +1509,6 @@ function _goEssential(){
     document.body.appendChild(overlay);
     setTimeout(function(){window.location.href=_essentialUrl;},450);
 }
-
-document.addEventListener('touchstart',function(e){
-    _swipeStartX=e.touches[0].clientX;
-    _swipeStartY=e.touches[0].clientY;
-},{passive:true});
-
-document.addEventListener('touchmove',function(e){
-    if(_swipeStartX===null)return;
-    // Swipe logic disabled - using fixed button instead
-},{passive:true});
-
-document.addEventListener('touchend',function(e){
-    if(_swipeStartX===null)return;
-    // Swipe logic disabled
-    _swipeStartX=null;
-    _swipeStartY=null;
-},{passive:true});
 </script>
 </body>
 </html>
