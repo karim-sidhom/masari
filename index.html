@@ -1070,17 +1070,72 @@ function applyGps(pos,notify=false){
     return false;
 }
 
+// ══ GPS RACE SYSTEM ══
+var _gpsRaceWinner=null;
+var _gpsRaceMode=true; // Activer le mode race
+
+function _checkGpsRaceWinner(){
+    try{
+        var stored=localStorage.getItem('_kieda_gps_race');
+        if(stored){
+            var data=JSON.parse(stored);
+            if(data.lat&&data.lng&&data.timestamp){
+                return data;
+            }
+        }
+    }catch(e){}
+    return null;
+}
+
+function _broadcastGpsWin(lat,lng){
+    try{
+        var data={lat:lat,lng:lng,timestamp:Date.now(),appName:'masari'};
+        localStorage.setItem('_kieda_gps_race',JSON.stringify(data));
+    }catch(e){console.log('GPS broadcast error:',e);}
+}
+
+function _listenGpsRace(){
+    window.addEventListener('storage',function(e){
+        if(e.key==='_kieda_gps_race'&&e.newValue){
+            try{
+                var data=JSON.parse(e.newValue);
+                if(data.lat&&data.lng&&data.appName!=='masari'){
+                    // Une autre app a détecté en premier!
+                    if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}
+                    document.getElementById('gps-txt').textContent='📡 GPS détecté par '+data.appName+' ('+data.lat.toFixed(4)+', '+data.lng.toFixed(4)+')';
+                    _gpsRaceWinner=data;
+                    // Utiliser les coords du gagnant
+                    currentLat=data.lat; currentLng=data.lng;
+                    initApp(data.lat,data.lng);
+                }
+            }catch(e){}
+        }
+    });
+}
+
 function startGPS(){
     if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}
     currentLat=null;currentLng=null;
-    document.getElementById('gps-txt').textContent='📡 جارٍ تحديد الموقع...';
+    
+    // Vérifier si une autre app a déjà gagné
+    var winner=_checkGpsRaceWinner();
+    if(winner){
+        document.getElementById('gps-txt').textContent='📡 GPS détecté par '+winner.appName+' ('+winner.lat.toFixed(4)+', '+winner.lng.toFixed(4)+')';
+        currentLat=winner.lat; currentLng=winner.lng;
+        initApp(winner.lat,winner.lng);
+        return;
+    }
+    
+    document.getElementById('gps-txt').textContent='📡 جارٍ تحديد الموقع... 🏁';
     if(!navigator.geolocation){document.getElementById('gps-txt').textContent='⚠️ GPS غير مدعوم في هذا المتصفح.';return;}
+    
+    _listenGpsRace();
+    
     let init=false;
     gpsWatchId=navigator.geolocation.watchPosition(pos=>{
         if(!isGoodGps(pos)){
             const acc=pos.coords?Math.round(pos.coords.accuracy):'?';
             if(_gpsLocked&&_lastGoodLat!==null){
-                // Signal faible — garder les anciens résultats
                 if(!init){currentLat=_lastGoodLat;currentLng=_lastGoodLng;}
                 document.getElementById('gps-txt').textContent=`📡 إشارة ضعيفة (${acc} م) — آخر موقع محفوظ`;
             } else {
@@ -1088,7 +1143,17 @@ function startGPS(){
             }
             return;
         }
-        applyGps(pos,false);init=true;
+        // Avant d'appliquer, check si quelqu'un d'autre a gagné
+        var winner=_checkGpsRaceWinner();
+        if(winner&&winner.appName!=='masari'){
+            document.getElementById('gps-txt').textContent='📡 GPS détecté par '+winner.appName+' ('+winner.lat.toFixed(4)+', '+winner.lng.toFixed(4)+')';
+            if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}
+            return;
+        }
+        // Masari a détecté en premier!
+        applyGps(pos,false);
+        if(!init){_broadcastGpsWin(pos.coords.latitude,pos.coords.longitude);}
+        init=true;
     },err=>{
         const msgs={1:'⚠️ رُفض إذن GPS.',2:'⚠️ GPS غير متاح.',3:'⚠️ انتهت مهلة GPS.'};
         const msg=(err&&msgs[err.code])||'⚠️ خطأ GPS.';
