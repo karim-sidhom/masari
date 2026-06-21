@@ -1257,6 +1257,14 @@ async function _lellaHandleQuery(txt){
         return;
     }
 
+    // ══ HOUSSIN EL MOUTARJEM — Traductions ══
+    if(txt.includes('ترجم')||txt.includes('ترجمة')||txt.includes('ترجملي')||txt.includes('translation')||txt.includes('traduire')){
+        _lellaSpeak('تفضّل سيدي، حسين المترجم في خدمتك.',function(){
+            window.open('https://moutarjem.kieda.online','_blank');
+        });
+        return;
+    }
+
     // Détecter TOUTES les destinations dans l'ordre
     var stops=[];
     var keys=Object.keys(_LELLA_PLACES);
@@ -1278,7 +1286,7 @@ async function _lellaHandleQuery(txt){
 
     if(stops.length===0){
         _lellaSpeak('سيدي، هذا السؤال يحتاج الجزري. أنا نجاوبك عاد على برشا مواضيع ثقافية، الجزري راهو في خدمتك.',function(){
-            window.open('https://jaziri.kieda.online','_blank');
+            window.open('https://ia.kieda.online','_blank');
         });
         return;
     }
@@ -1906,11 +1914,11 @@ function masariOpenJaziri(){
         localStorage.setItem('jaziriIntroSeen','1');
         _lellaSpeak(
             'سيدي... تفضّل أعرّفك بالعبقري العظيم... سيدي إسماعيل الجزري رحمه الله... أول عالم في تاريخ البشرية أبدع الآلات والروبوت في القرن الثاني عشر الميلادي... صاحب الكتاب الخالد في معرفة الحيل الهندسية سنة ألف ومئتين وستة... أبو الروبوتيكا في العالم... رحمه الله وأسكنه فسيح جناته. والآن سيدي، الجزري في خدمتك.',
-            function(){ window.open('https://jaziri.kieda.online','_blank'); }
+            function(){ window.open('https://ia.kieda.online','_blank'); }
         );
     } else {
         _lellaSpeak('الجزري في خدمتك سيدي.',
-            function(){ window.open('https://jaziri.kieda.online','_blank'); }
+            function(){ window.open('https://ia.kieda.online','_blank'); }
         );
     }
 }
