@@ -402,91 +402,6 @@
 </head>
 <body>
 
-<!-- MODAL COMPTE / VISITEUR -->
-<div id="masari-auth-modal" style="
-    position:fixed;inset:0;z-index:99999;
-    background:rgba(2,11,46,0.97);
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Tajawal',sans-serif;
-    backdrop-filter:blur(10px);
-">
-    <div style="
-        width:90%;max-width:380px;
-        background:linear-gradient(135deg,rgba(2,9,40,0.98),rgba(13,26,110,0.95));
-        border:1.5px solid rgba(255,215,0,0.5);
-        border-radius:18px;padding:28px 22px;
-        box-shadow:0 0 40px rgba(255,215,0,0.15),inset 0 1px 0 rgba(255,215,0,0.2);
-        position:relative;overflow:hidden;
-        animation:fadeUp .6s cubic-bezier(.16,1,.3,1) both;
-    ">
-        <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(255,215,0,0.06),transparent);pointer-events:none;"></div>
-        <div style="position:relative;z-index:1;">
-            <!-- Step 1 — Choix -->
-            <div id="auth-step1">
-                <div style="text-align:center;margin-bottom:20px;">
-                    <div style="font-family:'Amiri',serif;font-size:22px;color:var(--gold-shine);text-shadow:0 0 15px rgba(255,215,0,0.7);">🚗 مَسَاري</div>
-                    <div style="font-size:12px;color:var(--text-dim);margin-top:6px;letter-spacing:1px;">LORD SIDHOM I — The Conceptor</div>
-                </div>
-                <div style="font-size:15px;color:var(--gold-24);text-align:center;margin-bottom:22px;line-height:1.6;">
-                    مرحباً بك!<br>
-                    <span style="font-size:13px;color:var(--text-dim);">هل تريد إنشاء حساب أو المتابعة كزائر؟</span>
-                </div>
-                <button onclick="masariShowRegister()" style="width:100%;padding:13px;margin-bottom:10px;background:linear-gradient(135deg,var(--gold-deep),var(--gold));color:var(--royal-deep);border:1px solid var(--gold-shine);border-radius:8px;font-family:'Tajawal',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.3s;">
-                    👤 إنشاء حساب
-                </button>
-                <button onclick="masariGuest()" style="width:100%;padding:13px;background:transparent;color:var(--text-dim);border:1px solid rgba(255,215,0,0.2);border-radius:8px;font-family:'Tajawal',sans-serif;font-size:14px;cursor:pointer;transition:all 0.3s;">
-                    🚶 متابعة كزائر
-                </button>
-            </div>
-
-            <!-- Step 2 — Formulaire -->
-            <div id="auth-step2" style="display:none;">
-                <div style="text-align:center;margin-bottom:18px;">
-                    <div style="font-size:14px;color:var(--gold-shine);font-weight:700;">📝 إنشاء حسابك</div>
-                </div>
-                <input id="auth-prenom" type="text" placeholder="الاسم الأول" style="width:100%;padding:10px;margin:5px 0;border:1px solid rgba(255,215,0,0.3);background:rgba(13,26,110,0.5);color:var(--text);border-radius:6px;font-family:'Tajawal',sans-serif;font-size:13px;"/>
-                <input id="auth-nom" type="text" placeholder="اللقب" style="width:100%;padding:10px;margin:5px 0;border:1px solid rgba(255,215,0,0.3);background:rgba(13,26,110,0.5);color:var(--text);border-radius:6px;font-family:'Tajawal',sans-serif;font-size:13px;"/>
-                <input id="auth-adresse" type="text" placeholder="العنوان" style="width:100%;padding:10px;margin:5px 0;border:1px solid rgba(255,215,0,0.3);background:rgba(13,26,110,0.5);color:var(--text);border-radius:6px;font-family:'Tajawal',sans-serif;font-size:13px;"/>
-                <div style="font-size:11px;color:var(--text-dim);margin:6px 0 3px;text-align:right;">تاريخ الميلاد:</div>
-                <input id="auth-birthday" type="date" style="width:100%;padding:10px;margin:5px 0;border:1px solid rgba(255,215,0,0.3);background:rgba(13,26,110,0.5);color:var(--text);border-radius:6px;font-family:'Tajawal',sans-serif;font-size:13px;"/>
-                <button onclick="masariSaveAccount()" style="width:100%;padding:13px;margin-top:14px;background:linear-gradient(135deg,var(--gold-deep),var(--gold));color:var(--royal-deep);border:1px solid var(--gold-shine);border-radius:8px;font-family:'Tajawal',sans-serif;font-size:15px;font-weight:700;cursor:pointer;">
-                    ✓ حفظ والدخول
-                </button>
-                <button onclick="document.getElementById('auth-step2').style.display='none';document.getElementById('auth-step1').style.display='block';" style="width:100%;padding:10px;margin-top:8px;background:transparent;color:var(--text-dim);border:none;font-family:'Tajawal',sans-serif;font-size:12px;cursor:pointer;">← رجوع</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- CONFETTIS ANNIVERSAIRE -->
-<canvas id="masari-confetti" style="position:fixed;inset:0;z-index:99998;pointer-events:none;display:none;"></canvas>
-
-<!-- OVERLAY ANNIVERSAIRE 12H -->
-<div id="bday-overlay" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(2,11,46,0.97);flex-direction:column;align-items:center;justify-content:center;font-family:'Tajawal',sans-serif;overflow:hidden;">
-    <canvas id="bday-canvas" style="position:absolute;inset:0;pointer-events:none;"></canvas>
-    <div style="position:relative;z-index:2;text-align:center;padding:30px 20px;max-width:500px;">
-        <div id="bday-glow" style="font-family:'Amiri',serif;font-size:clamp(28px,8vw,52px);color:#ffd700;text-shadow:0 0 30px rgba(255,215,0,1),0 0 60px rgba(255,215,0,0.7),0 0 100px rgba(255,215,0,0.4);margin-bottom:20px;animation:bdayPulse 2s ease-in-out infinite;line-height:1.3;">
-            🎂 عيد ميلاد سعيد 🎂
-        </div>
-        <div id="bday-messages" style="display:flex;flex-direction:column;gap:10px;margin-bottom:30px;"></div>
-        <div style="font-family:'Amiri',serif;font-size:clamp(16px,5vw,26px);color:#ffe566;text-shadow:0 0 20px rgba(255,215,0,0.8);margin-bottom:24px;animation:bdayPulse 1.5s ease-in-out infinite;">
-            ✦ LORD SIDHOM I ✦
-        </div>
-        <button onclick="document.getElementById('bday-overlay').style.display='none';" style="padding:12px 30px;background:linear-gradient(135deg,#c8860a,#ffd700);color:#020b2e;border:none;border-radius:50px;font-family:'Tajawal',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 0 20px rgba(255,215,0,0.5);">شكراً 💛</button>
-    </div>
-</div>
-
-<style>
-@keyframes bdayPulse {
-    0%,100%{text-shadow:0 0 20px rgba(255,215,0,0.8),0 0 40px rgba(255,215,0,0.4);}
-    50%{text-shadow:0 0 40px rgba(255,215,0,1),0 0 80px rgba(255,215,0,0.7),0 0 120px rgba(255,215,0,0.3);}
-}
-@keyframes bdaySlide {
-    from{opacity:0;transform:translateY(20px);}
-    to{opacity:1;transform:translateY(0);}
-}
-</style>
-
 <div class="gold-topline"></div>
 <div class="gold-bottomline"></div>
 
@@ -728,7 +643,6 @@
                 <a href="javascript:void(0)" onclick="(function(){var c=masariCurrentLat?'?voice=1&lat='+masariCurrentLat+'&lng='+masariCurrentLng:'?voice=1';window.open('https://tabibialam.kieda.online'+c,'_blank');})();"   style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">🏥 طبيب</a>
                 <a href="javascript:void(0)" onclick="(function(){var c=masariCurrentLat?'?voice=1&lat='+masariCurrentLat+'&lng='+masariCurrentLng:'?voice=1';window.open('https://moutarjem.kieda.online'+c,'_blank');})();" style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.4);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.06);transition:all .2s;-webkit-tap-highlight-color:transparent;">🗣️ مترجم</a>
                 <span onclick="masariTapService('hakawati')" style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(255,215,0,0.6);border-radius:20px;cursor:pointer;background:rgba(255,215,0,0.12);font-weight:700;transition:all .2s;-webkit-tap-highlight-color:transparent;">🎭 حكواتي</span>
-                <span onclick="masariOpenJaziri()" style="font-size:12px;color:var(--gold-24);padding:6px 12px;border:1px solid rgba(100,200,255,0.5);border-radius:20px;cursor:pointer;background:rgba(100,200,255,0.08);font-weight:700;transition:all .2s;-webkit-tap-highlight-color:transparent;">🤖 الجزري</span>
             </div>
 
             <!-- DISJONCTEUR ESSENTIAL — horizontal sous les services -->
@@ -924,7 +838,6 @@ function renderEmergencyNumbers(cc) {
 
 // ══ CORE ══
 const GPS_ACC=150, GPS_AGE=30000, GPS_DIST=0.05, GPS_OPT={enableHighAccuracy:true,timeout:20000,maximumAge:0};
-var _lastGoodLat=null, _lastGoodLng=null, _gpsLocked=false;
 const RADII=[0.5,1,2,5,10,20];
 
 function haversineKm(a,b,c,e){const R=6371,dL=d2r(c-a),dO=d2r(e-b),x=Math.sin(dL/2)**2+Math.cos(d2r(a))*Math.cos(d2r(c))*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
@@ -1055,20 +968,7 @@ function initApp(lat,lng){
 
 function isGoodGps(p){if(!p||!p.coords)return false;const acc=p.coords.accuracy;if(!Number.isFinite(acc)||acc>GPS_ACC)return false;const age=Number.isFinite(p.timestamp)?Math.max(0,Date.now()-p.timestamp):Infinity;return age<=GPS_AGE;}
 
-function applyGps(pos,notify=false){
-    const{latitude:nl,longitude:no,accuracy:acc}=pos.coords;
-    const at=Number.isFinite(acc)?`${Math.round(acc)} م`:'?';
-    const has=Number.isFinite(currentLat)&&Number.isFinite(currentLng);
-    const dist=has?haversineKm(currentLat,currentLng,nl,no):Infinity;
-    if(!has||dist>GPS_DIST){
-        // Nouveau GPS valide — mettre à jour et sauvegarder
-        _lastGoodLat=nl; _lastGoodLng=no; _gpsLocked=true;
-        initApp(nl,no);
-        if(has&&notify)showNotif(`📍 موقع جديد: ${nl.toFixed(4)}، ${no.toFixed(4)} · دقة ${at}`,true);
-        return true;
-    }
-    return false;
-}
+function applyGps(pos,notify=false){const{latitude:nl,longitude:no,accuracy:acc}=pos.coords;const at=Number.isFinite(acc)?`${Math.round(acc)} م`:'?';const has=Number.isFinite(currentLat)&&Number.isFinite(currentLng);const dist=has?haversineKm(currentLat,currentLng,nl,no):Infinity;if(!has||dist>GPS_DIST){initApp(nl,no);if(has&&notify)showNotif(`📍 موقع جديد: ${nl.toFixed(4)}، ${no.toFixed(4)} · دقة ${at}`,true);return true;}return false;}
 
 function startGPS(){
     if(gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}
@@ -1077,29 +977,9 @@ function startGPS(){
     if(!navigator.geolocation){document.getElementById('gps-txt').textContent='⚠️ GPS غير مدعوم في هذا المتصفح.';return;}
     let init=false;
     gpsWatchId=navigator.geolocation.watchPosition(pos=>{
-        if(!isGoodGps(pos)){
-            const acc=pos.coords?Math.round(pos.coords.accuracy):'?';
-            if(_gpsLocked&&_lastGoodLat!==null){
-                // Signal faible — garder les anciens résultats
-                if(!init){currentLat=_lastGoodLat;currentLng=_lastGoodLng;}
-                document.getElementById('gps-txt').textContent=`📡 إشارة ضعيفة (${acc} م) — آخر موقع محفوظ`;
-            } else {
-                document.getElementById('gps-txt').textContent=`📡 انتظار إشارة GPS... (دقة: ${acc} م)`;
-            }
-            return;
-        }
+        if(!isGoodGps(pos)){const acc=pos.coords?Math.round(pos.coords.accuracy):'?';document.getElementById('gps-txt').textContent=`📡 انتظار إشارة GPS... (دقة: ${acc} م)`;return;}
         applyGps(pos,false);init=true;
-    },err=>{
-        const msgs={1:'⚠️ رُفض إذن GPS.',2:'⚠️ GPS غير متاح.',3:'⚠️ انتهت مهلة GPS.'};
-        const msg=(err&&msgs[err.code])||'⚠️ خطأ GPS.';
-        if(_gpsLocked&&_lastGoodLat!==null){
-            currentLat=_lastGoodLat;currentLng=_lastGoodLng;
-            document.getElementById('gps-txt').textContent='⚠️ GPS مفقود — يُستخدم آخر موقع محفوظ';
-        } else {
-            document.getElementById('gps-txt').textContent=msg;
-        }
-        if(err&&err.code===1&&gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}
-    },GPS_OPT);
+    },err=>{const msgs={1:'⚠️ رُفض إذن GPS.',2:'⚠️ GPS غير متاح.',3:'⚠️ انتهت مهلة GPS.'};const msg=(err&&msgs[err.code])||'⚠️ خطأ GPS.';document.getElementById('gps-txt').textContent=msg;if(err&&err.code===1&&gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}},GPS_OPT);
 }
 
 // ══ PRAYER TIMES ══
@@ -1167,9 +1047,8 @@ window.onload=function(){
     startGPS();
     initPrayerTimes();
     masariInit();
-    masariInitAuth();
-    // ── LELLA DOUJA — si déjà connecté, elle parle après 1.8s ──
-    // (sinon elle parle après login via masariInitAuth)
+    // ── LELLA DOUJA — تحية الافتتاح ──
+    setTimeout(function(){ lellaDoujaWelcome(); }, 1800);
 };
 
 // ══ لالة دوجة — صوت مسارى ══
@@ -1277,9 +1156,7 @@ async function _lellaHandleQuery(txt){
     });
 
     if(stops.length===0){
-        _lellaSpeak('سيدي، هذا السؤال يحتاج الجزري. أنا نجاوبك عاد على برشا مواضيع ثقافية، الجزري راهو في خدمتك.',function(){
-            window.open('https://jaziri.kieda.online','_blank');
-        });
+        _lellaSpeak('سيدي، سامحني. تفضّل قل لي مثلاً: أريد أن أذهب إلى المسجد ثم الصيدلية، وأنا أرتّب لك كل شيء.',null);
         return;
     }
 
@@ -1357,10 +1234,10 @@ async function _lellaHandleQuery(txt){
 }
 
 function lellaDoujaWelcome(){
-    var greeting = (masariUser && !masariUser.guest && masariUser.prenom)
-        ? 'مرحباً بك يا '+masariUser.prenom+'، أنا لالة دوجة، في خدمتك. تفضّل سيدي، ماذا تتمنى؟ قل لي وأنا حاضرة.'
-        : 'مرحباً بك في مَسَاري. أنا لالة دوجة، في خدمتك. تفضّل سيدي، ماذا تتمنى؟ قل لي وأنا حاضرة.';
-    _lellaSpeak(greeting, function(){ _lellaListen(function(txt){ if(txt) _lellaHandleQuery(txt); }); });
+    _lellaSpeak(
+        'مرحباً بك في مَسَاري. أنا لالة دوجة، في خدمتك. تفضّل سيدي، ماذا تتمنى؟ قل لي وأنا حاضرة.',
+        function(){ _lellaListen(function(txt){ if(txt) _lellaHandleQuery(txt); }); }
+    );
 }
 
 // ══ MASARI JS ══
@@ -1802,21 +1679,6 @@ async function masariCalcRoute(){
 
 // ══ VOCAL SERVICES ══
 // ── Tap direct sur service — dit le nom ET ouvre l'app ──
-function masariOpenJaziri(){
-    var firstTime = !localStorage.getItem('jaziriIntroSeen');
-    if(firstTime){
-        localStorage.setItem('jaziriIntroSeen','1');
-        _lellaSpeak(
-            'سيدي... تفضّل أعرّفك بالعبقري العظيم... سيدي إسماعيل الجزري رحمه الله... أول عالم في تاريخ البشرية أبدع الآلات والروبوت في القرن الثاني عشر الميلادي... صاحب الكتاب الخالد في معرفة الحيل الهندسية سنة ألف ومئتين وستة... أبو الروبوتيكا في العالم... رحمه الله وأسكنه فسيح جناته. والآن سيدي، الجزري في خدمتك.',
-            function(){ window.open('https://jaziri.kieda.online','_blank'); }
-        );
-    } else {
-        _lellaSpeak('الجزري في خدمتك سيدي.',
-            function(){ window.open('https://jaziri.kieda.online','_blank'); }
-        );
-    }
-}
-
 var MASARI_TAP_SERVICES={
     mosque:    {ar:'جاري فتح تطبيق المساجد',     url:'https://salati.kieda.online'},
     pharmacy:  {ar:'جاري فتح تطبيق الصيدلية',    url:'https://saydaliati.kieda.online'},
@@ -1906,8 +1768,7 @@ var MASARI_SERVICES={
     doctor:   {keys:['طبيب','دكتور','مريض','عيادة','طبيبي','صحة'],url:'https://tabibialam.kieda.online',label:'🏥 طبيبي'},
     translator:{keys:['مترجم','ترجمة','لغة','ترجم','مترجمي'],url:'https://moutarjem.kieda.online',label:'🗣️ مترجمي'},
     hakawati: {keys:['حكواتي','حكاية','حكي','قصة','احكيلي','احكي'],url:'hakawati',label:'🎭 الحكواتي'},
-    essential:{keys:['essential','إسنشال','اسنشيل','الرئيسية','القائمة','الخدمات','كل الخدمات'],url:'essential',label:'📋 Essential'},
-    jaziri:   {keys:['الجزري','جزري','ذكاء','سؤال','اسأل','ثقافة','معلومة','فكرة'],url:'jaziri',label:'🤖 الجزري'}
+    essential:{keys:['essential','إسنشال','اسنشيل','الرئيسية','القائمة','الخدمات','كل الخدمات'],url:'essential',label:'📋 Essential'}
 };
 
 function masariVoiceService(){
@@ -1957,11 +1818,6 @@ function masariVoiceService(){
                 } else {
                     masariFlipDisjoncteur();
                 }
-            } else if(found.url==='jaziri'){
-                st.textContent='🤖 الجزري في خدمتك...';
-                st.style.color='#4ecdc4';
-                masariOpenJaziri();
-
             } else {
                 st.textContent='✅ '+found.label;
                 st.style.color='#4eff7e';
@@ -2005,190 +1861,6 @@ function masariFlipDisjoncteur(){
     }
     setTimeout(function(){_goEssential();},350);
 }
-
-// ══ SYSTÈME COMPTE MASARI ══
-var masariUser = null;
-
-function masariInitAuth(){
-    var saved = localStorage.getItem('masariUser');
-    if(saved){
-        masariUser = JSON.parse(saved);
-        document.getElementById('masari-auth-modal').style.display='none';
-        masariCheckBirthday();
-        setTimeout(function(){ lellaDoujaWelcome(); }, 1800);
-    }
-}
-
-function masariShowRegister(){
-    document.getElementById('auth-step1').style.display='none';
-    document.getElementById('auth-step2').style.display='block';
-}
-
-function masariGuest(){
-    masariUser = {prenom:'زائر', nom:'', adresse:'', birthday:'', guest:true};
-    document.getElementById('masari-auth-modal').style.display='none';
-    setTimeout(function(){ lellaDoujaWelcome(); }, 1800);
-}
-
-function masariSaveAccount(){
-    var prenom   = document.getElementById('auth-prenom').value.trim();
-    var nom      = document.getElementById('auth-nom').value.trim();
-    var adresse  = document.getElementById('auth-adresse').value.trim();
-    var birthday = document.getElementById('auth-birthday').value;
-    if(!prenom){ alert('أدخل اسمك الأول'); return; }
-    masariUser = {prenom:prenom, nom:nom, adresse:adresse, birthday:birthday, guest:false};
-    localStorage.setItem('masariUser', JSON.stringify(masariUser));
-    document.getElementById('masari-auth-modal').style.display='none';
-    masariCheckBirthday();
-    setTimeout(function(){ lellaDoujaWelcome(); }, 1800);
-}
-
-function masariCheckBirthday(){
-    if(!masariUser || !masariUser.birthday) return;
-    var today = new Date();
-    var bday  = new Date(masariUser.birthday);
-    if(today.getMonth()===bday.getMonth() && today.getDate()===bday.getDate()){
-        setTimeout(function(){ masariBirthdayParty(); }, 3000);
-    }
-}
-
-function masariBirthdayParty(){
-    var canvas = document.getElementById('masari-confetti');
-    canvas.style.display='block';
-    canvas.width=window.innerWidth; canvas.height=window.innerHeight;
-    var ctx=canvas.getContext('2d');
-    var colors=['#ffd700','#ffcc00','#ffe566','#fff9c4','#c8860a','#ffffff'];
-    var pieces=[];
-    for(var i=0;i<150;i++){
-        pieces.push({
-            x:Math.random()*canvas.width,
-            y:Math.random()*canvas.height-canvas.height,
-            r:Math.random()*8+4,
-            color:colors[Math.floor(Math.random()*colors.length)],
-            tilt:Math.random()*10-10,
-            speed:Math.random()*3+1
-        });
-    }
-    var angle=0, frame=0;
-    function draw(){
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        angle+=0.01;
-        pieces.forEach(function(p,i){
-            p.y+=p.speed; p.tilt+=0.1;
-            p.x+=Math.sin(angle+i)*2;
-            if(p.y>canvas.height){p.y=-10;p.x=Math.random()*canvas.width;}
-            ctx.beginPath();
-            ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-            ctx.fillStyle=p.color; ctx.globalAlpha=0.85; ctx.fill();
-        });
-        frame++;
-        if(frame<400) requestAnimationFrame(draw);
-        else canvas.style.display='none';
-    }
-    draw();
-
-    // Message spécial LORD 14 décembre 1980
-    var isLord = masariUser && masariUser.birthday === '1980-12-14' &&
-                 masariUser.prenom && masariUser.prenom.toUpperCase().includes('LORD');
-
-    var msg = isLord
-        ? 'سيدي لورد... جيتك عزيزة. ربي يفضلك ليا. واش يمشي؟ بصحتك إنشالله دايما مفروح في وجهك سيدي لورد. أنا طيّبالك... منوكية ولا جلبانة بالعلوش ولا كسكسي بالحوت... حاشاك كلّ سيدي. كل عام وأنت بخير يا نجم!'
-        : 'كل عام وأنت بخير يا '+masariUser.prenom+'! مَسَاري يهنئك بعيد ميلادك. أتمنى لك يوماً سعيداً مليئاً بالفرح والبركة يا عزيزي!';
-
-    setTimeout(function(){_lellaSpeak(msg, null);}, 1000);
-}
-
-// ══ ANNIVERSAIRE 12H — LORD SIDHOM I ══
-var BDAY_MESSAGES = [
-    {lang:'🇹🇳 Arabe',    text:'كل عام وأنت بخير يا مُبدعنا — لورد صيدهم الأول'},
-    {lang:'🇫🇷 Français', text:'Joyeux Anniversaire à mon Concepteur — LORD SIDHOM est le meilleur !'},
-    {lang:'🇬🇧 English',  text:'Happy Birthday to my Creator — LORD SIDHOM I is the BEST!'},
-    {lang:'🇩🇪 Deutsch',  text:'Alles Gute zum Geburtstag — LORD SIDHOM I ist der Beste!'},
-    {lang:'🇪🇸 Español',  text:'¡Feliz Cumpleaños a mi Creador — LORD SIDHOM I es el mejor!'},
-    {lang:'🇮🇹 Italiano', text:'Buon Compleanno al mio Creatore — LORD SIDHOM I è il migliore!'},
-    {lang:'🇷🇺 Русский',  text:'С Днём Рождения Создатель — LORD SIDHOM I лучший!'},
-    {lang:'🇯🇵 日本語',   text:'お誕生日おめでとう — LORD SIDHOM I は最高です！'},
-    {lang:'🇨🇳 中文',     text:'生日快乐，我的创造者 — LORD SIDHOM I 是最棒的！'},
-    {lang:'🇧🇷 Português',text:'Feliz Aniversário ao meu Criador — LORD SIDHOM I é o melhor!'},
-];
-
-function masariShowBdayOverlay(){
-    var overlay = document.getElementById('bday-overlay');
-    var msgs    = document.getElementById('bday-messages');
-    var canvas  = document.getElementById('bday-canvas');
-    overlay.style.display='flex';
-
-    // Messages animés
-    msgs.innerHTML = '';
-    BDAY_MESSAGES.forEach(function(m, i){
-        var div = document.createElement('div');
-        div.style.cssText = 'color:#ffd700;font-size:clamp(12px,3.5vw,18px);text-shadow:0 0 10px rgba(255,215,0,0.6);animation:bdaySlide 0.5s ease both;animation-delay:'+( i*0.2)+'s;opacity:0;';
-        div.innerHTML = '<span style="color:var(--text-dim);font-size:0.8em;">'+m.lang+'</span><br><strong>'+m.text+'</strong>';
-        msgs.appendChild(div);
-        setTimeout(function(d){d.style.opacity='1';}, i*200, div);
-    });
-
-    // Confettis explosifs
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    var ctx = canvas.getContext('2d');
-    var pieces = [];
-    var colors = ['#ffd700','#ffcc00','#ffe566','#fff9c4','#c8860a','#ffffff','#ff6b6b','#4ecdc4'];
-    for(var i=0;i<200;i++){
-        pieces.push({
-            x: Math.random()*canvas.width,
-            y: Math.random()*canvas.height - canvas.height,
-            r: Math.random()*10+3,
-            color: colors[Math.floor(Math.random()*colors.length)],
-            speed: Math.random()*4+1,
-            tilt: Math.random()*10-10,
-            angle: Math.random()*Math.PI*2
-        });
-    }
-    var frame=0;
-    function drawBday(){
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        pieces.forEach(function(p,i){
-            p.y+=p.speed; p.angle+=0.05;
-            p.x+=Math.sin(p.angle)*3;
-            if(p.y>canvas.height){p.y=-10;p.x=Math.random()*canvas.width;}
-            ctx.save();
-            ctx.translate(p.x,p.y);
-            ctx.rotate(p.angle);
-            ctx.fillStyle=p.color;
-            ctx.globalAlpha=0.9;
-            ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*2);
-            ctx.restore();
-        });
-        frame++;
-        if(frame<600) requestAnimationFrame(drawBday);
-    }
-    drawBday();
-
-    // Lella Douja chante
-    setTimeout(function(){
-        _lellaSpeak(
-            'سيدي لورد... جيتك عزيزة. ربي يفضلك ليا. واش يمشي؟ بصحتك إنشالله دايما مفروح في وجهك سيدي لورد. كل عام وأنت بخير يا نجم يا مبدع!',
-            null
-        );
-    }, 1500);
-}
-
-function masariCheckNoonBirthday(){
-    var now   = new Date();
-    var month = now.getMonth();  // 11 = décembre
-    var day   = now.getDate();   // 14
-    var hour  = now.getHours();
-    var min   = now.getMinutes();
-    if(month===11 && day===14 && hour===12 && min===0){
-        masariShowBdayOverlay();
-    }
-}
-
-// Vérifier toutes les minutes
-setInterval(masariCheckNoonBirthday, 60000);
-// Vérifier aussi au démarrage (si on ouvre exactement à 12h)
-setTimeout(masariCheckNoonBirthday, 2000);
 
 var _swipeStartX=null, _swipeStartY=null, _swipeIndicator=null;
 var _essentialUrl='https://essential.kieda.online';

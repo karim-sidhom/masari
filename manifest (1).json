@@ -1,0 +1,27 @@
+{
+  "name": "مَسَاري — LORD SIDHOM I",
+  "short_name": "مَسَاري",
+  "description": "نظام التنقل الذكي — خَطِّط مَسَارَك",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020b2e",
+  "theme_color": "#ffd700",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["navigation", "travel", "utilities"]
+}
