@@ -1537,18 +1537,16 @@ var masariMap=null, masariArrMarker=null;
 var masariArrLat=null, masariArrLng=null;
 
 function masariCallLella(){
-    // Son dakdaka avec Web Audio API
+    // Son dakdaka avec Web Audio API (ne coupe rien!)
     try{
         var ctx=new (window.AudioContext||window.webkitAudioContext)();
         var now=ctx.currentTime;
-        
-        // Créer 3 coups de dakdaka
         for(var i=0;i<3;i++){
             var osc=ctx.createOscillator();
             var gain=ctx.createGain();
             osc.connect(gain);
             gain.connect(ctx.destination);
-            osc.frequency.value=150+i*50; // Fréquences différentes
+            osc.frequency.value=150+i*50;
             osc.type='sine';
             gain.gain.setValueAtTime(0.3,now+i*0.2);
             gain.gain.exponentialRampToValueAtTime(0.01,now+i*0.2+0.15);
@@ -1557,16 +1555,15 @@ function masariCallLella(){
         }
     }catch(e){}
     
-    // Afficher notification
     showNotif('🥁 داك داك!',true);
     
-    // Lella répond avec un délai
-    setTimeout(function(){
-        _lellaSpeak('حني جايا يا سيدي!', function(){
-            // Optionnel: sons du marché en arrière-plan
-            showNotif('🏪 صوت السوق...',false);
-        });
-    }, 800);
+    // Ajouter phase 5 à la queue (elle s'exécutera après les phases précédentes)
+    _masariPhaseQueue.push({phase:5, text:'حاضر أسمعك يا سيدي!'});
+    
+    // Si pas de phase en cours, commencer
+    if(_masariCurrentPhase===null){
+        _masariPhaseNext();
+    }
 }
 
 function masariInit(){
@@ -2172,22 +2169,65 @@ function masariTapService(key){
 }
 
 var _hakawatiIdx=0;
+var _masariPhaseQueue=[];
+var _masariCurrentPhase=null;
+
+function _masariPhaseNext(){
+    if(_masariPhaseQueue.length===0){_masariCurrentPhase=null;return;}
+    _masariCurrentPhase=_masariPhaseQueue.shift();
+    if(_masariCurrentPhase.phase===1){
+        // PHASE 1 — Lella présente
+        _lellaSpeak(_masariCurrentPhase.text, function(){
+            // Attendre 5 secondes avant phase 2
+            setTimeout(_masariPhaseNext, 5000);
+        });
+    } else if(_masariCurrentPhase.phase===2){
+        // PHASE 2 — Moktar raconte
+        _moktarSpeak(_masariCurrentPhase.text, function(){
+            // Attendre 5 secondes avant phase suivante
+            setTimeout(_masariPhaseNext, 5000);
+        });
+    } else if(_masariCurrentPhase.phase===3){
+        // PHASE 3 — Lella complimente
+        _lellaSpeak(_masariCurrentPhase.text, function(){
+            setTimeout(_masariPhaseNext, 5000);
+        });
+    } else if(_masariCurrentPhase.phase===4){
+        // PHASE 4 — Moktar répond
+        _moktarSpeak(_masariCurrentPhase.text, function(){
+            setTimeout(_masariPhaseNext, 2000);
+        });
+    } else if(_masariCurrentPhase.phase===5){
+        // PHASE 5 — Lella écoute (dakdaka)
+        _lellaSpeak(_masariCurrentPhase.text, function(){
+            _lellaListen(function(txt){
+                if(txt && txt.trim()){
+                    _lellaHandleQuery(txt);
+                } else {
+                    _lellaSpeak('سيدي، سامحني، لم أفهم جيداً.',null);
+                }
+            });
+        });
+    }
+}
+
 function masariTellStory(){
     if(!window.speechSynthesis){showNotif('المتصفح لا يدعم الصوت',false);return;}
     var story=HAKAWATI_STORIES[_hakawatiIdx % HAKAWATI_STORIES.length];
     _hakawatiIdx++;
     showNotif('🎭 الحكواتي يحكي...',true);
-    // Lella présente Moktar
-    _lellaSpeak('تفضّل سيدي، مختار يحكيلك قصة اليوم.', function(){
-        // Moktar raconte l'histoire
-        _moktarSpeak(story, function(){
-            // Après l'histoire — Lella le complimente
-            _lellaSpeak('ماهلاها الخيوة ماشالله عليك!', function(){
-                // Moktar répond avec humour
-                _moktarSpeak('ماهلاه الكسكسي لالة المرة اللي فاتت!', null);
-            });
-        });
-    });
+    
+    // Construire les phases
+    _masariPhaseQueue=[
+        {phase:1, text:'تفضّل سيدي، مختار يحكيلك قصة اليوم.'},
+        {phase:2, text:story},
+        {phase:3, text:'ماهلاها الخيوة ماشالله عليك!'},
+        {phase:4, text:'ماهلاه الكسكسي لالة المرة اللي فاتت!'}
+    ];
+    
+    if(_masariCurrentPhase===null){
+        _masariPhaseNext();
+    }
 }
 
 var MASARI_SERVICES={
