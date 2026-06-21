@@ -940,7 +940,7 @@ function renderEmergencyNumbers(cc) {
 }
 
 // ══ CORE ══
-const GPS_ACC=150, GPS_AGE=30000, GPS_DIST=0.05, GPS_OPT={enableHighAccuracy:true,timeout:20000,maximumAge:0};
+const GPS_ACC=500, GPS_AGE=60000, GPS_DIST=0.1, GPS_OPT={enableHighAccuracy:false,timeout:10000,maximumAge:30000};
 var _lastGoodLat=null, _lastGoodLng=null, _gpsLocked=false;
 const RADII=[0.5,1,2,5,10,20];
 
