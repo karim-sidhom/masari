@@ -612,21 +612,40 @@
         </div>
     </div>
 
-    <!-- ══ BOUTON DAKDAKA — Appel à Lella ══ -->
-    <div style="text-align: center; margin: 18px 0; animation: pulse-gold 2s ease-in-out infinite;">
-        <button onclick="masariCallLella()" style="
-            width: 80px; height: 80px; border-radius: 50%;
-            background: linear-gradient(135deg, #c8860a, #ffd700);
-            border: 3px solid #ffe566;
-            font-size: 40px; cursor: pointer;
-            box-shadow: 0 0 30px rgba(255,215,0,0.7), inset 0 0 15px rgba(255,255,200,0.3);
-            transition: all 0.2s;
-            font-weight: 700;
-        " onmouseover="this.style.boxShadow='0 0 50px rgba(255,215,0,1), inset 0 0 20px rgba(255,255,200,0.5)'" 
-           onmouseout="this.style.boxShadow='0 0 30px rgba(255,215,0,0.7), inset 0 0 15px rgba(255,255,200,0.3)'">
-            🥁
-        </button>
-        <div style="font-size: 11px; color: #ffd700; margin-top: 6px; letter-spacing: 0.1em; font-family: 'Tajawal', sans-serif;">داك داك — اطلب لالة دوجة</div>
+    <!-- ══ PORTE ARABE ANIMÉE — Adhrab Al Baba ══ -->
+    <div style="text-align: center; margin: 24px 0; perspective: 1000px;">
+        <div style="
+            position: relative;
+            width: 160px;
+            height: 220px;
+            margin: 0 auto;
+            cursor: pointer;
+            filter: drop-shadow(0 0 30px rgba(255,215,0,0.4));
+        " id="baab-door" onclick="masariAdhrabAlBaab()">
+            <!-- Porte SVG -->
+            <svg viewBox="0 0 100 150" style="width: 100%; height: 100%; position: relative; z-index: 2;" xmlns="http://www.w3.org/2000/svg">
+                <!-- Cadre porte -->
+                <rect x="10" y="10" width="80" height="130" rx="4" fill="#8B6F47" stroke="#D4AF37" stroke-width="2"/>
+                <!-- Motifs géométriques (arabesque) -->
+                <circle cx="30" cy="40" r="8" fill="#D4AF37" opacity="0.7"/>
+                <circle cx="70" cy="40" r="8" fill="#D4AF37" opacity="0.7"/>
+                <circle cx="50" cy="75" r="10" fill="#D4AF37" opacity="0.7"/>
+                <rect x="25" y="100" width="50" height="2" fill="#D4AF37" opacity="0.7"/>
+                <rect x="25" y="110" width="50" height="2" fill="#D4AF37" opacity="0.7"/>
+                <!-- Poignée dorée -->
+                <circle cx="80" cy="75" r="5" fill="#FFD700" stroke="#D4AF37" stroke-width="1"/>
+            </svg>
+        </div>
+        <div style="
+            margin-top: 16px;
+            font-family: 'Amiri', serif;
+            color: #ffd700;
+            text-align: center;
+            letter-spacing: 2px;
+        ">
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">أضرب الباب</div>
+            <div style="font-size: 14px; color: #ffe566;">إسمع الجواب</div>
+        </div>
     </div>
 
     <!-- وضع التحديد -->
@@ -1439,6 +1458,16 @@ async function _lellaHandleQuery(txt){
     });
 
     if(stops.length===0){
+        // Vérifier les salutations simples d'abord
+        if(txt.includes('كيفك')||txt.includes('ديرك')||txt.includes('ساهي')||txt.includes('سلام')||txt.includes('bonjour')||txt.includes('ça va')||txt.includes('بخير')){
+            _lellaSpeak('بخير سيدي، الحمد لله. أنا في خدمتك دائماً.',null);
+            return;
+        }
+        if(txt.includes('شكرا')||txt.includes('مرسي')||txt.includes('merci')||txt.includes('thank')){
+            _lellaSpeak('لا شكر على واجب سيدي. تفضّل إذا احتجت شيء آخر.',null);
+            return;
+        }
+        // Sinon — appeler El Jaziri
         _lellaSpeak('سيدي، هذا السؤال يحتاج الجزري. أنا نجاوبك عاد على برشا مواضيع ثقافية، الجزري راهو في خدمتك.',function(){
             window.open('https://ia.kieda.online','_blank');
         });
@@ -1536,8 +1565,12 @@ var masariFixAsked=false;
 var masariMap=null, masariArrMarker=null;
 var masariArrLat=null, masariArrLng=null;
 
-function masariCallLella(){
-    // Son dakdaka avec Web Audio API (ne coupe rien!)
+function masariAdhrabAlBaab(){
+    // Animer la porte
+    var door=document.getElementById('baab-door');
+    door.style.animation='door-knock 0.6s ease-in-out';
+    
+    // Son dakdaka avec Web Audio API
     try{
         var ctx=new (window.AudioContext||window.webkitAudioContext)();
         var now=ctx.currentTime;
@@ -1557,13 +1590,29 @@ function masariCallLella(){
     
     showNotif('🥁 داك داك!',true);
     
-    // Ajouter phase 5 à la queue (elle s'exécutera après les phases précédentes)
+    // Ajouter phase pour l'écoute (dakdaka)
     _masariPhaseQueue.push({phase:5, text:'حاضر أسمعك يا سيدي!'});
     
     // Si pas de phase en cours, commencer
     if(_masariCurrentPhase===null){
         _masariPhaseNext();
     }
+}
+
+// Animation de la porte
+if(!document.querySelector('style[data-door-anim]')){
+    var style=document.createElement('style');
+    style.setAttribute('data-door-anim','true');
+    style.textContent=`
+        @keyframes door-knock {
+            0% { transform: rotateY(0deg); }
+            25% { transform: rotateY(-8deg); }
+            50% { transform: rotateY(0deg); }
+            75% { transform: rotateY(-8deg); }
+            100% { transform: rotateY(0deg); }
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 function masariInit(){
