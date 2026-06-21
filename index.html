@@ -612,6 +612,23 @@
         </div>
     </div>
 
+    <!-- ══ BOUTON DAKDAKA — Appel à Lella ══ -->
+    <div style="text-align: center; margin: 18px 0; animation: pulse-gold 2s ease-in-out infinite;">
+        <button onclick="masariCallLella()" style="
+            width: 80px; height: 80px; border-radius: 50%;
+            background: linear-gradient(135deg, #c8860a, #ffd700);
+            border: 3px solid #ffe566;
+            font-size: 40px; cursor: pointer;
+            box-shadow: 0 0 30px rgba(255,215,0,0.7), inset 0 0 15px rgba(255,255,200,0.3);
+            transition: all 0.2s;
+            font-weight: 700;
+        " onmouseover="this.style.boxShadow='0 0 50px rgba(255,215,0,1), inset 0 0 20px rgba(255,255,200,0.5)'" 
+           onmouseout="this.style.boxShadow='0 0 30px rgba(255,215,0,0.7), inset 0 0 15px rgba(255,255,200,0.3)'">
+            🥁
+        </button>
+        <div style="font-size: 11px; color: #ffd700; margin-top: 6px; letter-spacing: 0.1em; font-family: 'Tajawal', sans-serif;">داك داك — اطلب لالة دوجة</div>
+    </div>
+
     <!-- وضع التحديد -->
     <div class="select-wrap">
         <select id="pos-mode-select" class="app-select">
@@ -1250,19 +1267,91 @@ var _LELLA_PLACES={
     doctor:   {ar:'طبيب',   keys:['طبيب','دكتور','عيادة'],  tag:'amenity=doctors',         appUrl:'https://tabibialam.kieda.online'},
 };
 
-function _lellaSpeak(text, onEnd){
-    if(!window.speechSynthesis){if(onEnd)onEnd();return;}
-    window.speechSynthesis.cancel();
-    var u=new SpeechSynthesisUtterance(text);
+// ══ MOKTAR STORYTELLER QUEUE SYSTEM ══
+var _moktarQueue=[];
+var _moktarSpeaking=false;
+
+function _moktarProcessQueue(){
+    if(_moktarSpeaking||_moktarQueue.length===0)return;
+    
+    var item=_moktarQueue.shift();
+    _moktarSpeaking=true;
+    
+    if(!window.speechSynthesis){
+        _moktarSpeaking=false;
+        if(item.onEnd)item.onEnd();
+        _moktarProcessQueue();
+        return;
+    }
+    
+    var u=new SpeechSynthesisUtterance(item.text);
+    u.lang='ar-SA'; u.rate=0.75; u.pitch=0.8; u.volume=1;
+    var voices=window.speechSynthesis.getVoices();
+    var v=voices.find(function(x){return x.lang==='ar-SA'&&x.name.toLowerCase().includes('male');})
+         ||voices.find(function(x){return x.lang==='ar-SA';})
+         ||voices.find(function(x){return x.lang.startsWith('ar');});
+    if(v)u.voice=v;
+    
+    u.onend=function(){
+        _moktarSpeaking=false;
+        if(item.onEnd)item.onEnd();
+        setTimeout(_moktarProcessQueue, 400);
+    };
+    u.onerror=function(){
+        _moktarSpeaking=false;
+        if(item.onEnd)item.onEnd();
+        setTimeout(_moktarProcessQueue, 400);
+    };
+    
+    window.speechSynthesis.speak(u);
+}
+
+function _moktarSpeak(text, onEnd){
+    _moktarQueue.push({text:text, onEnd:onEnd});
+    _moktarProcessQueue();
+}
+var _lellaQueue=[];
+var _lellaSpeaking=false;
+
+function _lellaProcessQueue(){
+    if(_lellaSpeaking||_lellaQueue.length===0)return;
+    
+    var item=_lellaQueue.shift();
+    _lellaSpeaking=true;
+    
+    if(!window.speechSynthesis){
+        _lellaSpeaking=false;
+        if(item.onEnd)item.onEnd();
+        _lellaProcessQueue();
+        return;
+    }
+    
+    var u=new SpeechSynthesisUtterance(item.text);
     u.lang='ar-SA'; u.rate=0.82; u.pitch=1.1; u.volume=1;
     var voices=window.speechSynthesis.getVoices();
     var v=voices.find(function(x){return x.lang==='ar-SA'&&x.name.toLowerCase().includes('female');})
          ||voices.find(function(x){return x.lang==='ar-SA';})
          ||voices.find(function(x){return x.lang.startsWith('ar');});
     if(v)u.voice=v;
-    u.onend=function(){if(onEnd)onEnd();};
-    u.onerror=function(){if(onEnd)onEnd();};
+    
+    u.onend=function(){
+        _lellaSpeaking=false;
+        if(item.onEnd)item.onEnd();
+        // Attendre 300ms avant le prochain message
+        setTimeout(_lellaProcessQueue, 300);
+    };
+    u.onerror=function(){
+        _lellaSpeaking=false;
+        if(item.onEnd)item.onEnd();
+        setTimeout(_lellaProcessQueue, 300);
+    };
+    
     window.speechSynthesis.speak(u);
+}
+
+function _lellaSpeak(text, onEnd){
+    _lellaQueue.push({text:text, onEnd:onEnd});
+    _lellaProcessQueue();
 }
 
 function _lellaListen(onResult){
@@ -1446,6 +1535,39 @@ var masariCurrentAddr='';
 var masariFixAsked=false;
 var masariMap=null, masariArrMarker=null;
 var masariArrLat=null, masariArrLng=null;
+
+function masariCallLella(){
+    // Son dakdaka avec Web Audio API
+    try{
+        var ctx=new (window.AudioContext||window.webkitAudioContext)();
+        var now=ctx.currentTime;
+        
+        // Créer 3 coups de dakdaka
+        for(var i=0;i<3;i++){
+            var osc=ctx.createOscillator();
+            var gain=ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value=150+i*50; // Fréquences différentes
+            osc.type='sine';
+            gain.gain.setValueAtTime(0.3,now+i*0.2);
+            gain.gain.exponentialRampToValueAtTime(0.01,now+i*0.2+0.15);
+            osc.start(now+i*0.2);
+            osc.stop(now+i*0.2+0.15);
+        }
+    }catch(e){}
+    
+    // Afficher notification
+    showNotif('🥁 داك داك!',true);
+    
+    // Lella répond avec un délai
+    setTimeout(function(){
+        _lellaSpeak('حني جايا يا سيدي!', function(){
+            // Optionnel: sons du marché en arrière-plan
+            showNotif('🏪 صوت السوق...',false);
+        });
+    }, 800);
+}
 
 function masariInit(){
     var s=localStorage.getItem('masariPoints');
@@ -2054,15 +2176,18 @@ function masariTellStory(){
     if(!window.speechSynthesis){showNotif('المتصفح لا يدعم الصوت',false);return;}
     var story=HAKAWATI_STORIES[_hakawatiIdx % HAKAWATI_STORIES.length];
     _hakawatiIdx++;
-    window.speechSynthesis.cancel();
     showNotif('🎭 الحكواتي يحكي...',true);
-    var u=new SpeechSynthesisUtterance(story);
-    u.lang='ar-SA'; u.rate=0.78; u.pitch=1.05; u.volume=1;
-    var voices=window.speechSynthesis.getVoices();
-    var v=voices.find(function(x){return x.lang==='ar-SA';})
-         ||voices.find(function(x){return x.lang.startsWith('ar');});
-    if(v)u.voice=v;
-    window.speechSynthesis.speak(u);
+    // Lella présente Moktar
+    _lellaSpeak('تفضّل سيدي، مختار يحكيلك قصة اليوم.', function(){
+        // Moktar raconte l'histoire
+        _moktarSpeak(story, function(){
+            // Après l'histoire — Lella le complimente
+            _lellaSpeak('ماهلاها الخيوة ماشالله عليك!', function(){
+                // Moktar répond avec humour
+                _moktarSpeak('ماهلاه الكسكسي لالة المرة اللي فاتت!', null);
+            });
+        });
+    });
 }
 
 var MASARI_SERVICES={
