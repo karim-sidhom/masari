@@ -1194,7 +1194,22 @@ function startGPS(){
     },GPS_OPT);
 }
 
-// ══ PRAYER TIMES ══
+// ══ RELANCER GPS TOUTES LES 20 SECONDES ══
+var _gpsRefreshInterval=null;
+function _startGpsRefresh(){
+    if(_gpsRefreshInterval) clearInterval(_gpsRefreshInterval);
+    _gpsRefreshInterval=setInterval(function(){
+        if(currentLat && currentLng){
+            _broadcastGpsWin(currentLat, currentLng);
+        }
+    }, 20000);  // 20 secondes
+}
+// Lancer le refresh quand le GPS est obtenu
+var _origApplyGps=applyGps;
+applyGps=function(pos,isManual){
+    _origApplyGps(pos,isManual);
+    if(!_gpsRefreshInterval) _startGpsRefresh();
+};
 const PRAYER_KEYS=[{key:'Fajr',ar:'الفجر'},{key:'Dhuhr',ar:'الظهر'},{key:'Asr',ar:'العصر'},{key:'Maghrib',ar:'المغرب'},{key:'Isha',ar:'العشاء'}];
 const PRAYER_ICONS={Fajr:'🌙',Dhuhr:'☀️',Asr:'🌤️',Maghrib:'🌅',Isha:'🌑'};
 const TUNIS_LAT=36.8065, TUNIS_LON=10.1815;
