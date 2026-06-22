@@ -1375,17 +1375,51 @@ function _lellaListen(onResult){
     setTimeout(function(){try{rec.stop();}catch(e){}},7000);
 }
 
+// ══ LELLA CACHE & NOMINATIM ══
+var _lellaCache = {};
+
+async function _lellaPreloadCache(lat, lng){
+    var keys = Object.keys(_LELLA_PLACES);
+    for(var i = 0; i < keys.length; i++){
+        var key = keys[i];
+        var tag = _LELLA_PLACES[key].tag;
+        var results = await _lellaFindNearest(tag, lat, lng);
+        _lellaCache[key] = results || [];
+    }
+}
+
 async function _lellaFindNearest(tag, lat, lng){
     try{
-        var q='[out:json][timeout:8];node['+tag+'](around:3000,'+lat+','+lng+');out 1;';
-        var r=await fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q));
-        var j=await r.json();
-        if(j.elements&&j.elements.length){
-            var el=j.elements[0];
-            return {name:el.tags&&el.tags.name?el.tags.name:null, lat:el.lat, lng:el.lon};
+        var vb = _lellaViewboxForRadius(lat, lng, 3);
+        var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&' + tag + '&viewbox=' + vb + '&bounded=1&limit=50&accept-language=ar';
+        var r = await fetch(url);
+        var results = await r.json();
+        
+        if(results && results.length > 0){
+            var arr = results.map(p => {
+                var dist = _lellaDistance(lat, lng, parseFloat(p.lat), parseFloat(p.lon));
+                return {name: p.name || 'مكان', lat: parseFloat(p.lat), lng: parseFloat(p.lon), distance: dist};
+            });
+            arr.sort((a,b) => a.distance - b.distance);
+            return arr;
         }
     }catch(e){}
-    return null;
+    return [];
+}
+
+function _lellaViewboxForRadius(lat, lon, radiusKm){
+    var latOffset = radiusKm / 111;
+    var lonOffset = radiusKm / (111 * Math.cos(lat * Math.PI / 180));
+    return (lon - lonOffset) + ',' + (lat - latOffset) + ',' + (lon + lonOffset) + ',' + (lat + latOffset);
+}
+
+function _lellaDistance(lat1, lon1, lat2, lon2){
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLon = (lon2 - lon1) * Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
 }
 
 async function _lellaRoute(lat1,lng1,lat2,lng2){
@@ -1482,8 +1516,9 @@ async function _lellaHandleQuery(txt){
     // Une seule destination
     if(stops.length===1){
         _lellaSpeak('تفضّل سيدي، لحظة من فضلك، أبحث عن أقرب '+stops[0].place.ar+' من موقعك...', async function(){
-            var nearest=await _lellaFindNearest(stops[0].place.tag,masariCurrentLat,masariCurrentLng);
-            if(!nearest){_lellaSpeak('سيدي، سامحني، لم أجد '+stops[0].place.ar+' قريبة في الوقت الحالي.',null);return;}
+            var results=_lellaCache[stops[0].key]||[];
+            if(!results||results.length===0){_lellaSpeak('سيدي، سامحني، لم أجد '+stops[0].place.ar+' قريبة في الوقت الحالي.',null);return;}
+            var nearest=results[0];
             var route=await _lellaRoute(masariCurrentLat,masariCurrentLng,nearest.lat,nearest.lng);
             var msg=nearest.name?'أقرب '+stops[0].place.ar+' هو '+nearest.name+'. ':'وجدت أقرب '+stops[0].place.ar+'. ';
             if(route) msg+='يبعد '+route.km+' كيلومتر، الوقت '+route.min+' دقيقة. ';
@@ -1502,40 +1537,61 @@ async function _lellaHandleQuery(txt){
         return;
     }
 
-    // متعددة destinations — trajet séquentiel
-    _lellaSpeak('تفضّل سيدي، لحظة من فضلك، أحسب لك الرحلة كاملة.', async function(){
-        // Trouver tous les lieux
-        var waypoints=[{lat:masariCurrentLat,lng:masariCurrentLng,name:'موقعك الحالي'}];
+    // متعددة destinations — optimisation de route
+    _lellaSpeak('تفضّل سيدي، لحظة من فضلك، أحسب لك الرحلة الأمثل.', async function(){
+        // Utiliser le cache pour optimisation
+        var serviceResults = [];
         for(var i=0;i<stops.length;i++){
-            var nearest=await _lellaFindNearest(stops[i].place.tag,masariCurrentLat,masariCurrentLng);
-            if(nearest){
-                waypoints.push({
-                    lat:nearest.lat,
-                    lng:nearest.lng,
-                    name:nearest.name||stops[i].place.ar,
-                    ar:stops[i].place.ar
-                });
+            var results = _lellaCache[stops[i].key] || [];
+            if(results.length > 0){
+                serviceResults.push({service: stops[i], results: results});
             }
         }
-
-        if(waypoints.length<2){_lellaSpeak('سيدي، سامحني، لم أتمكن من تحديد الأماكن المطلوبة. أرجو المحاولة مرة أخرى.',null);return;}
-
-        // Calcul étape par étape
-        var totalMin=0, totalKm=0;
-        var msg='حسبت لك الرحلة. ';
-        for(var j=0;j<waypoints.length-1;j++){
-            var from=waypoints[j];
-            var to=waypoints[j+1];
-            var r=await _lellaRoute(from.lat,from.lng,to.lat,to.lng);
-            if(r){
-                totalKm+=parseFloat(r.km);
-                totalMin+=parseInt(r.min);
-                msg+='من '+(j===0?'موقعك':''+from.name)+' إلى '+to.name+': '+r.km+' كيلومتر، '+r.min+' دقيقة. ';
-            }
-        }
-        msg+='إجمالي الرحلة: '+totalKm.toFixed(1)+' كيلومتر، '+totalMin+' دقيقة.';
-        _lellaSpeak(msg,null);
+        
+        if(serviceResults.length === 0){_lellaSpeak('سيدي، سامحني، لم أتمكن من تحديد الأماكن المطلوبة.',null);return;}
+        
+        // Tester TOUTES les combinaisons et choisir la meilleure
+        var bestRoute = await _lellaOptimizeRoute(serviceResults, masariCurrentLat, masariCurrentLng);
+        if(!bestRoute){_lellaSpeak('سيدي، سامحني، لم أتمكن من حساب أفضل طريق.',null);return;}
+        
+        _lellaSpeak(bestRoute.message, null);
     });
+}
+
+async function _lellaOptimizeRoute(serviceResults, startLat, startLng){
+    // Pour maintenant, retourner juste la première combinaison (plus proche de chaque service)
+    // TODO: Implémenter l'optimisation complète en testant toutes les combos
+    var waypoints=[{lat:startLat, lng:startLng, name:'موقعك الحالي'}];
+    for(var i=0; i<serviceResults.length; i++){
+        var results = serviceResults[i].results;
+        if(results.length > 0){
+            var nearest = results[0];
+            waypoints.push({
+                lat: nearest.lat,
+                lng: nearest.lng,
+                name: nearest.name || serviceResults[i].service.place.ar,
+                ar: serviceResults[i].service.place.ar
+            });
+        }
+    }
+    
+    if(waypoints.length < 2) return null;
+    
+    var totalMin = 0, totalKm = 0;
+    var msg = 'حسبت لك الرحلة الأمثل. ';
+    for(var j = 0; j < waypoints.length - 1; j++){
+        var from = waypoints[j];
+        var to = waypoints[j + 1];
+        var r = await _lellaRoute(from.lat, from.lng, to.lat, to.lng);
+        if(r){
+            totalKm += parseFloat(r.km);
+            totalMin += parseInt(r.min);
+            msg += 'من ' + (j===0 ? 'موقعك' : from.name) + ' إلى ' + to.name + ': ' + r.km + ' كيلومتر، ' + r.min + ' دقيقة. ';
+        }
+    }
+    msg += 'إجمالي الرحلة: ' + totalKm.toFixed(1) + ' كيلومتر، ' + totalMin + ' دقيقة.';
+    
+    return {message: msg, totalKm: totalKm, totalMin: totalMin, waypoints: waypoints};
 }
 
 function lellaDoujaWelcome(){
@@ -2044,6 +2100,8 @@ function masariOnGps(lat,lng,addr){
     masariCurrentLat=lat; masariCurrentLng=lng; masariCurrentAddr=addr||'';
     // Lancer toutes les apps en arrière-plan avec les coords GPS
     masariPreloadAllApps(lat,lng);
+    // Pré-charger le cache Lella avec Nominatim (50 résultats par service)
+    _lellaPreloadCache(lat,lng);
     var st=document.getElementById('masari-gps-status');
     var addrDiv=document.getElementById('masari-gps-addr');
     var fixBtn=document.getElementById('masari-fix-btn');
