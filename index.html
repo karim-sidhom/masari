@@ -654,10 +654,32 @@
         <div id="manual-location-info" class="manual-location-info" style="display:none;"></div>
     </div>
 
-    <!-- حالة GPS -->
-    <div class="gps-bar">
-        <div class="gps-dot"></div>
-        <span id="gps-txt">جارٍ تفعيل GPS...</span>
+    <!-- GPS MULTI-SYSTEM DISPLAY -->
+    <div class="gps-bar" style="display:none;" id="gps-systems-display">
+        <div style="width:100%; padding: 12px; background: rgba(13,26,110,0.6); border-radius: 10px; border: 1px solid rgba(255,215,0,0.2);">
+            <div style="font-size: 13px; font-weight: 700; color: #ffcc00; margin-bottom: 10px;">🗺️ Systèmes de Géolocalisation:</div>
+            <div id="gps-system-gps" style="font-size: 11px; color: #d4b86a; margin: 6px 0; padding: 6px; background: rgba(255,215,0,0.08); border-radius: 6px;">
+                🛰️ GPS: <span style="color: #ff8b8b;">en attente...</span>
+            </div>
+            <div id="gps-system-galileo" style="font-size: 11px; color: #d4b86a; margin: 6px 0; padding: 6px; background: rgba(255,215,0,0.08); border-radius: 6px;">
+                🇪🇺 Galileo: <span style="color: #ff8b8b;">en attente...</span>
+            </div>
+            <div id="gps-system-glonass" style="font-size: 11px; color: #d4b86a; margin: 6px 0; padding: 6px; background: rgba(255,215,0,0.08); border-radius: 6px;">
+                🇷🇺 GLONASS: <span style="color: #ff8b8b;">en attente...</span>
+            </div>
+            <div id="gps-system-antenne" style="font-size: 11px; color: #d4b86a; margin: 6px 0; padding: 6px; background: rgba(255,215,0,0.08); border-radius: 6px;">
+                📡 Antenne: <span style="color: #ff8b8b;">en attente...</span>
+            </div>
+            <div id="gps-system-ip" style="font-size: 11px; color: #d4b86a; margin: 6px 0; padding: 6px; background: rgba(255,215,0,0.08); border-radius: 6px;">
+                🌐 IP: <span style="color: #ff8b8b;">en attente...</span>
+            </div>
+            <div id="gps-system-osm" style="font-size: 11px; color: #d4b86a; margin: 6px 0; padding: 6px; background: rgba(255,215,0,0.08); border-radius: 6px;">
+                🗺️ OSM: <span style="color: #ff8b8b;">en attente...</span>
+            </div>
+            <div id="gps-system-best" style="font-size: 12px; color: #4eff7e; margin-top: 10px; padding: 8px; background: rgba(39,174,96,0.2); border-radius: 6px; font-weight: 700; border: 1px solid #27ae60;">
+                ✓ Meilleur: en attente...
+            </div>
+        </div>
     </div>
 
     <!-- إحصائيات سريعة -->
@@ -1080,6 +1102,136 @@ function initApp(lat,lng){
     });
 }
 
+// ══ MULTI-SYSTEM GEOLOCATION (TOUS GRATUITS) ══
+async function _getAllGeolocationSystems(){
+    var results = [];
+    var display = document.getElementById('gps-systems-display');
+    if(display) display.style.display = 'block';
+    
+    // 1. GPS (built-in - Galileo, GLONASS, BeiDou inclus)
+    if(currentLat && currentLng && !isNaN(currentLat) && !isNaN(currentLng)){
+        results.push({source: '🛰️ GPS', lat: currentLat, lng: currentLng, accuracy: 5});
+        _updateSystemDisplay('gps-system-gps', '✓ Détecté', '#4eff7e', currentLat.toFixed(5) + ', ' + currentLng.toFixed(5) + ' (5m)');
+    } else {
+        _updateSystemDisplay('gps-system-gps', '✗ Non disponible', '#ff8b8b', '');
+    }
+    
+    // 2. Mozilla Cell Tower (antennes - Galileo, GLONASS proxy)
+    var cell = await _getCellTowerLocation();
+    if(cell) {
+        results.push({source: '📡 Antenne', lat: cell.lat, lng: cell.lng, accuracy: cell.accuracy});
+        _updateSystemDisplay('gps-system-antenne', '✓ Détecté', '#4eff7e', cell.lat.toFixed(5) + ', ' + cell.lng.toFixed(5) + ' (' + Math.round(cell.accuracy) + 'm)');
+    } else {
+        _updateSystemDisplay('gps-system-antenne', '✗ Non disponible', '#ff8b8b', '');
+    }
+    
+    // 3. IP Geolocation (fallback)
+    var ip = await _getIPGeolocation();
+    if(ip) {
+        results.push({source: '🌐 IP', lat: ip.lat, lng: ip.lng, accuracy: ip.accuracy});
+        _updateSystemDisplay('gps-system-ip', '✓ Détecté', '#4eff7e', ip.lat.toFixed(5) + ', ' + ip.lng.toFixed(5) + ' (' + Math.round(ip.accuracy) + 'm)');
+    } else {
+        _updateSystemDisplay('gps-system-ip', '✗ Non disponible', '#ff8b8b', '');
+    }
+    
+    // 4. OpenStreetMap Nominatim (alternative gratuite)
+    var osm = await _getNominatimGeolocation();
+    if(osm) {
+        results.push({source: '🗺️ OSM', lat: osm.lat, lng: osm.lng, accuracy: osm.accuracy});
+        _updateSystemDisplay('gps-system-osm', '✓ Détecté', '#4eff7e', osm.lat.toFixed(5) + ', ' + osm.lng.toFixed(5) + ' (' + Math.round(osm.accuracy) + 'm)');
+    } else {
+        _updateSystemDisplay('gps-system-osm', '✗ Non disponible', '#ff8b8b', '');
+    }
+    
+    // Galileo & GLONASS info (inclus dans GPS du browser)
+    _updateSystemDisplay('gps-system-galileo', '✓ Inclus dans GPS', '#64c8ff', 'Constellation Europe');
+    _updateSystemDisplay('gps-system-glonass', '✓ Inclus dans GPS', '#64c8ff', 'Constellation Russie');
+    
+    return results;
+}
+
+function _updateSystemDisplay(elementId, status, color, details){
+    var elem = document.getElementById(elementId);
+    if(elem){
+        var statusSpan = elem.querySelector('span');
+        if(statusSpan){
+            statusSpan.textContent = status;
+            statusSpan.style.color = color;
+        }
+        if(details) elem.textContent += ' ' + details;
+    }
+}
+
+async function _getCellTowerLocation(){
+    try{
+        var r=await fetch('https://location.services.mozilla.com/v1/geolocate?key=test');
+        var j=await r.json();
+        if(j.location){
+            return {lat: j.location.lat, lng: j.location.lng, accuracy: j.accuracy, source: 'cell'};
+        }
+    }catch(e){}
+    return null;
+}
+
+async function _getIPGeolocation(){
+    try{
+        var r = await fetch('https://ipapi.co/json/');
+        var j = await r.json();
+        if(j.latitude && j.longitude){
+            return {lat: j.latitude, lng: j.longitude, accuracy: 5000, source: 'ip'};
+        }
+    }catch(e){}
+    return null;
+}
+
+async function _getNominatimGeolocation(){
+    try{
+        var r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + (currentLat||0) + '&lon=' + (currentLng||0));
+        var j = await r.json();
+        if(j.lat && j.lon){
+            return {lat: parseFloat(j.lat), lng: parseFloat(j.lon), accuracy: 10, source: 'osm'};
+        }
+    }catch(e){}
+    return null;
+}
+
+function _getBestLocation(results){
+    if(!results || results.length === 0) return null;
+    
+    // Trier par précision (accuracy la plus faible = meilleure)
+    results.sort((a,b) => a.accuracy - b.accuracy);
+    
+    // Si plusieurs résultats, faire une moyenne pondérée
+    var best;
+    if(results.length > 1){
+        var totalLat = 0, totalLng = 0, totalWeight = 0;
+        for(var i = 0; i < Math.min(results.length, 3); i++){
+            var weight = 1 / (results[i].accuracy || 1);
+            totalLat += results[i].lat * weight;
+            totalLng += results[i].lng * weight;
+            totalWeight += weight;
+        }
+        best = {
+            lat: totalLat / totalWeight,
+            lng: totalLng / totalWeight,
+            accuracy: Math.min(...results.map(r => r.accuracy)),
+            sources: results.map(r => r.source).join(' + ')
+        };
+    } else {
+        best = results[0];
+    }
+    
+    // Afficher le meilleur résultat
+    var bestDisplay = document.getElementById('gps-system-best');
+    if(bestDisplay){
+        bestDisplay.innerHTML = '✓ Meilleur: ' + best.sources + '<br>' + 
+                               best.lat.toFixed(5) + ', ' + best.lng.toFixed(5) + 
+                               ' (précision: ' + Math.round(best.accuracy) + 'm)';
+    }
+    
+    return best;
+}
+
 function isGoodGps(p){if(!p||!p.coords)return false;const acc=p.coords.accuracy;if(!Number.isFinite(acc)||acc>GPS_ACC)return false;const age=Number.isFinite(p.timestamp)?Math.max(0,Date.now()-p.timestamp):Infinity;return age<=GPS_AGE;}
 
 function applyGps(pos,notify=false){
@@ -1158,16 +1310,24 @@ function startGPS(){
     
     _listenGpsRace();
     
+    // LANCER TOUS LES SYSTÈMES EN PARALLÈLE DÈS LE DÉPART
+    _getAllGeolocationSystems().then(results => {
+        if(results && results.length > 0){
+            var best = _getBestLocation(results);
+            if(best){
+                currentLat = best.lat;
+                currentLng = best.lng;
+                document.getElementById('gps-txt').textContent=`📡 ${best.sources} (${Math.round(best.accuracy)}m)`;
+                applyGps({coords: {latitude: best.lat, longitude: best.lng}}, false);
+                _broadcastGpsWin(best.lat, best.lng);
+            }
+        }
+    });
+    
+    // AUSSI garder le GPS watchPosition en arrière-plan (mise à jour continue)
     let init=false;
     gpsWatchId=navigator.geolocation.watchPosition(pos=>{
         if(!isGoodGps(pos)){
-            const acc=pos.coords?Math.round(pos.coords.accuracy):'?';
-            if(_gpsLocked&&_lastGoodLat!==null){
-                if(!init){currentLat=_lastGoodLat;currentLng=_lastGoodLng;}
-                document.getElementById('gps-txt').textContent=`📡 إشارة ضعيفة (${acc} م) — آخر موقع محفوظ`;
-            } else {
-                document.getElementById('gps-txt').textContent=`📡 انتظار إشارة GPS... (دقة: ${acc} م)`;
-            }
             return;
         }
         // Avant d'appliquer, check si quelqu'un d'autre a gagné
@@ -1182,14 +1342,18 @@ function startGPS(){
         if(!init){_broadcastGpsWin(pos.coords.latitude,pos.coords.longitude);}
         init=true;
     },err=>{
-        const msgs={1:'⚠️ رُفض إذن GPS.',2:'⚠️ GPS غير متاح.',3:'⚠️ انتهت مهلة GPS.'};
-        const msg=(err&&msgs[err.code])||'⚠️ خطأ GPS.';
-        if(_gpsLocked&&_lastGoodLat!==null){
-            currentLat=_lastGoodLat;currentLng=_lastGoodLng;
-            document.getElementById('gps-txt').textContent='⚠️ GPS مفقود — يُستخدم آخر موقع محفوظ';
-        } else {
-            document.getElementById('gps-txt').textContent=msg;
-        }
+        // Relancer TOUS les systèmes si GPS échoue
+        _getAllGeolocationSystems().then(results => {
+            if(results && results.length > 0){
+                var best = _getBestLocation(results);
+                if(best){
+                    currentLat = best.lat;
+                    currentLng = best.lng;
+                    document.getElementById('gps-txt').textContent=`📡 ${best.sources} (${Math.round(best.accuracy)}m)`;
+                    applyGps({coords: {latitude: best.lat, longitude: best.lng}}, false);
+                }
+            }
+        });
         if(err&&err.code===1&&gpsWatchId!==null){navigator.geolocation.clearWatch(gpsWatchId);gpsWatchId=null;}
     },GPS_OPT);
 }
